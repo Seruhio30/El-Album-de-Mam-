@@ -1,0 +1,24 @@
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Temporary files
+*.tmp
+*.log
+
+# Environment variables
+.env
+.env.*
+
+# Large or private media files
+frontend/assets/photos/*
+frontend/assets/videos/*
+frontend/assets/thumbnails/*
+
+# Keep empty directories in Git
+!frontend/assets/photos/.gitkeep
+!frontend/assets/videos/.gitkeep
+!frontend/assets/thumbnails/.gitkeep
