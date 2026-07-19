@@ -125,3 +125,23 @@ La categoría activa se comunica visualmente y mediante el atributo
 
 El filtrado permite encontrar recuerdos con menos pasos y sin presentar
 formularios o controles complejos a la usuaria.
+
+## 12. Uso de módulos JavaScript nativos
+
+El código JavaScript comenzó a dividirse en módulos según su responsabilidad.
+
+En esta primera refactorización se separaron:
+
+- El formateo de fechas en `js/utils/date.js`.
+- La carga y validación de recuerdos en `js/data/memories-service.js`.
+
+El archivo `app.js` continúa coordinando la aplicación.
+
+### Motivo
+
+Los módulos reducen el tamaño y las responsabilidades de `app.js`, facilitan
+las pruebas y permiten continuar agregando funcionalidades sin crear un archivo
+central difícil de mantener.
+
+Se utilizan módulos nativos del navegador para evitar dependencias y
+herramientas de compilación innecesarias durante el MVP.

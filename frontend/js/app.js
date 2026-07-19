@@ -1,3 +1,5 @@
+import { formatDate } from "./utils/date.js";
+import { fetchMemories } from "./data/memories-service.js";
 const memoriesGrid = document.querySelector("#memories-grid");
 const welcomeSection = document.querySelector(".welcome");
 const categoriesSection = document.querySelector(".categories");
@@ -29,14 +31,6 @@ const activeFilter = document.querySelector("#active-filter");
 
 let allMemories = [];
 
-function formatDate(dateValue) {
-  const date = new Date(`${dateValue}T00:00:00`);
-
-  return new Intl.DateTimeFormat("es-CR", {
-    month: "long",
-    year: "numeric"
-  }).format(date);
-}
 
 function getMemoryTypeLabel(type) {
   return type === "video" ? "Video" : "Fotografía";
@@ -312,15 +306,7 @@ function showLoadError() {
 
 async function loadMemories() {
   try {
-    const response = await fetch("data/memories.json");
-
-    if (!response.ok) {
-      throw new Error(
-        `Error al cargar recuerdos: ${response.status}`
-      );
-    }
-
-    allMemories = await response.json();
+    allMemories = await fetchMemories();
 
     renderMemories(allMemories);
     updateActiveCategory("all");
