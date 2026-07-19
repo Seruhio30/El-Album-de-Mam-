@@ -31,3 +31,13 @@ Las fotografías y videos estarán ignorados mediante `.gitignore`.
 ### Motivo
 
 Los recuerdos son privados y pueden ocupar demasiado espacio.
+
+## 5. Estructura semántica de la pantalla principal
+
+La pantalla principal utiliza elementos HTML semánticos como `header`, `main`,
+`section`, `nav`, `article` y `footer`.
+
+### Motivo
+
+Una estructura semántica mejora la accesibilidad, facilita el mantenimiento y
+permite que tecnologías de asistencia comprendan mejor el contenido.
