@@ -1,11 +1,19 @@
-import { formatDate } from "./utils/date.js";
-import { fetchMemories } from "./data/memories-service.js";
 import { renderMemories } from "./components/memory-card.js";
+import { fetchMemories } from "./data/memories-service.js";
+import { createCategoryFilter } from "./filters/category-filter.js";
+import { formatDate } from "./utils/date.js";
 import { createPhotoViewer } from "./viewers/photo-viewer.js";
 import { createVideoViewer } from "./viewers/video-viewer.js";
 
 
 const memoriesGrid = document.querySelector("#memories-grid");
+
+const categoryLinks = document.querySelectorAll(
+  ".category-card[data-category]"
+);
+
+const activeFilter = document.querySelector("#active-filter");
+
 const welcomeSection = document.querySelector(".welcome");
 const categoriesSection = document.querySelector(".categories");
 const recentMemoriesSection = document.querySelector("#recent-memories");
@@ -52,15 +60,9 @@ const videoViewerController = createVideoViewer({
   recentMemoriesSection
 });
 
-const categoryLinks = document.querySelectorAll(
-  ".category-card[data-category]"
-);
 
-const activeFilter = document.querySelector("#active-filter");
 
 let allMemories = [];
-
-
 
 function hideHomeSections() {
   welcomeSection.hidden = true;
@@ -86,55 +88,13 @@ function displayMemories(memories) {
   );
 }
 
-function getCategoryLabel(category) {
-  const labels = {
-    all: "todos",
-    viajes: "viajes",
-    familia: "familia",
-    celebraciones: "celebraciones"
-  };
-
-  return labels[category] || "todos";
-}
-
-
-function updateActiveCategory(selectedCategory) {
-  categoryLinks.forEach((link) => {
-    const isActive =
-      link.dataset.category === selectedCategory;
-
-    link.classList.toggle(
-      "category-card--active",
-      isActive
-    );
-
-    if (isActive) {
-      link.setAttribute("aria-current", "true");
-    } else {
-      link.removeAttribute("aria-current");
-    }
-  });
-}
-
-function filterMemoriesByCategory(category) {
-  const filteredMemories =
-    category === "all"
-      ? allMemories
-      : allMemories.filter(
-        (memory) => memory.category === category
-      );
-
- displayMemories(filteredMemories);
-  updateActiveCategory(category);
-
-  activeFilter.textContent =
-    `Mostrando ${getCategoryLabel(category)}`;
-
-  recentMemoriesSection.scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
-}
+const categoryFilterController = createCategoryFilter({
+  categoryLinks,
+  activeFilter,
+  recentMemoriesSection,
+  getMemories: () => allMemories,
+  onFilter: displayMemories
+});
 
 function showLoadError() {
   memoriesGrid.innerHTML = `
@@ -146,26 +106,12 @@ function showLoadError() {
 
 async function loadMemories() {
   try {
-    allMemories = await fetchMemories();
-
-   
-    displayMemories(allMemories);
-    updateActiveCategory("all");
+    allMemories = await fetchMemories()
+   categoryFilterController.filterByCategory("all");
   } catch (error) {
     console.error(error);
     showLoadError();
   }
 }
-
-categoryLinks.forEach((link) => {
-  link.addEventListener("click", (event) => {
-    event.preventDefault();
-
-    const selectedCategory = link.dataset.category;
-
-    filterMemoriesByCategory(selectedCategory);
-  });
-});
-
 
 loadMemories();

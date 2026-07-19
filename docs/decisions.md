@@ -184,3 +184,16 @@ visor.
 
 Separar el reproductor reduce las responsabilidades de `app.js` y mantiene en
 un solo lugar el manejo del estado multimedia.
+
+## 16. Módulo independiente para filtros de categorías
+
+La lógica de filtrado se trasladó a
+`js/filters/category-filter.js`.
+
+El módulo recibe una función para obtener los recuerdos y otra para renderizar
+el resultado filtrado.
+
+### Motivo
+
+Esto separa el estado de los recuerdos, la lógica de filtrado y la presentación
+de las tarjetas, dejando `app.js` como coordinador.
