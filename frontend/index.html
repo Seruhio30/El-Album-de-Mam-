@@ -127,43 +127,55 @@
       </div>
     </section>
 
-    <section
-  id="photo-viewer"
-  class="photo-viewer"
-  aria-labelledby="photo-viewer-title"
-  hidden
->
-  <button
-    id="photo-viewer-back"
-    class="photo-viewer__back"
-    type="button"
-  >
-    ← Volver a los recuerdos
-  </button>
+    <section id="photo-viewer" class="photo-viewer" aria-labelledby="photo-viewer-title" hidden>
+      <button id="photo-viewer-back" class="photo-viewer__back" type="button">
+        ← Volver a los recuerdos
+      </button>
 
-  <div class="photo-viewer__content">
-    <img
-      id="photo-viewer-image"
-      class="photo-viewer__image"
-      src=""
-      alt=""
-    >
+      <div class="photo-viewer__content">
+        <img id="photo-viewer-image" class="photo-viewer__image" src="" alt="">
 
-    <div class="photo-viewer__information">
-      <p class="photo-viewer__type">
-        Fotografía
-      </p>
+        <div class="photo-viewer__information">
+          <p class="photo-viewer__type">
+            Fotografía
+          </p>
 
-      <h2 id="photo-viewer-title">
-        Recuerdo
-      </h2>
+          <h2 id="photo-viewer-title">
+            Recuerdo
+          </h2>
 
-      <p id="photo-viewer-details"></p>
+          <p id="photo-viewer-details"></p>
 
-      <p id="photo-viewer-description"></p>
-    </div>
-  </div>
-</section>
+          <p id="photo-viewer-description"></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="video-viewer" class="video-viewer" aria-labelledby="video-viewer-title" hidden>
+      <button id="video-viewer-back" class="video-viewer__back" type="button">
+        ← Volver a los recuerdos
+      </button>
+
+      <div class="video-viewer__content">
+        <video id="video-viewer-player" class="video-viewer__player" controls preload="metadata">
+          Tu navegador no puede reproducir este video.
+        </video>
+
+        <div class="video-viewer__information">
+          <p class="video-viewer__type">
+            Video
+          </p>
+
+          <h2 id="video-viewer-title">
+            Recuerdo
+          </h2>
+
+          <p id="video-viewer-details"></p>
+
+          <p id="video-viewer-description"></p>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">

@@ -94,3 +94,18 @@ recuerdo. También incluye un botón visible para regresar a la galería.
 Abrir la fotografía directamente como archivo puede desorientar a la usuaria.
 Mantener la navegación dentro de la aplicación ofrece una experiencia más
 predecible y sencilla.
+
+## 10. Reproductor interno de videos
+
+Los videos se reproducen dentro de la aplicación mediante el elemento HTML
+`video`.
+
+El reproductor incluye controles nativos del navegador, información del
+recuerdo y un botón visible para regresar a la galería.
+
+Al cerrar el visor, el video se pausa y se elimina temporalmente su fuente.
+
+### Motivo
+
+Mantener la reproducción dentro de la aplicación evita que la usuaria salga del
+flujo principal o se desoriente al abrir el archivo directamente.

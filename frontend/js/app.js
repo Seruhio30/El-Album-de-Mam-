@@ -12,6 +12,15 @@ const photoViewerDescription = document.querySelector(
   "#photo-viewer-description"
 );
 
+const videoViewer = document.querySelector("#video-viewer");
+const videoViewerBack = document.querySelector("#video-viewer-back");
+const videoViewerPlayer = document.querySelector("#video-viewer-player");
+const videoViewerTitle = document.querySelector("#video-viewer-title");
+const videoViewerDetails = document.querySelector("#video-viewer-details");
+const videoViewerDescription = document.querySelector(
+  "#video-viewer-description"
+);
+
 function formatDate(dateValue) {
   const date = new Date(`${dateValue}T00:00:00`);
 
@@ -122,6 +131,41 @@ function closePhotoViewer() {
   });
 }
 
+function openVideoViewer(memory) {
+  hideHomeSections();
+
+  videoViewerPlayer.src = memory.file;
+  videoViewerTitle.textContent = memory.title;
+  videoViewerDetails.textContent =
+    `${memory.place} · ${formatDate(memory.date)}`;
+
+  videoViewerDescription.textContent =
+    memory.description || "Recuerdo familiar.";
+
+  videoViewer.hidden = false;
+
+  videoViewerBack.focus();
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+function closeVideoViewer() {
+  videoViewerPlayer.pause();
+  videoViewerPlayer.removeAttribute("src");
+  videoViewerPlayer.load();
+
+  videoViewer.hidden = true;
+
+  showHomeSections();
+
+  recentMemoriesSection.scrollIntoView({
+    behavior: "smooth"
+  });
+}
+
 function createMemoryCard(memory) {
   const article = document.createElement("article");
   article.className = "memory-card";
@@ -163,6 +207,13 @@ function createMemoryCard(memory) {
     link.addEventListener("click", (event) => {
       event.preventDefault();
       openPhotoViewer(memory);
+    });
+  }
+
+  if (memory.type === "video") {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      openVideoViewer(memory);
     });
   }
 
@@ -222,4 +273,5 @@ async function loadMemories() {
 }
 
 photoViewerBack.addEventListener("click", closePhotoViewer);
+videoViewerBack.addEventListener("click", closeVideoViewer);
 loadMemories();
