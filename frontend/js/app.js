@@ -1,5 +1,8 @@
 import { formatDate } from "./utils/date.js";
 import { fetchMemories } from "./data/memories-service.js";
+import { renderMemories } from "./components/memory-card.js";
+
+
 const memoriesGrid = document.querySelector("#memories-grid");
 const welcomeSection = document.querySelector(".welcome");
 const categoriesSection = document.querySelector(".categories");
@@ -32,58 +35,6 @@ const activeFilter = document.querySelector("#active-filter");
 let allMemories = [];
 
 
-function getMemoryTypeLabel(type) {
-  return type === "video" ? "Video" : "Fotografía";
-}
-
-function getMemoryActionLabel(type) {
-  return type === "video"
-    ? "Reproducir video"
-    : "Ver recuerdo";
-}
-
-function createMemoryPlaceholder(type) {
-  const placeholder = document.createElement("div");
-  placeholder.className = "memory-card__placeholder";
-
-  const icon = document.createElement("span");
-  icon.setAttribute("aria-hidden", "true");
-  icon.textContent = type === "video" ? "▶️" : "📷";
-
-  placeholder.appendChild(icon);
-
-  return placeholder;
-}
-
-function createMemoryImage(memory) {
-  const imageContainer = document.createElement("div");
-  imageContainer.className = "memory-card__media";
-
-  const image = document.createElement("img");
-  image.className = "memory-card__image";
-  image.src = memory.thumbnail;
-  image.alt = memory.description || memory.title;
-  image.loading = "lazy";
-
-  image.addEventListener("error", () => {
-    imageContainer.replaceWith(
-      createMemoryPlaceholder(memory.type)
-    );
-  });
-
-  imageContainer.appendChild(image);
-
-  if (memory.type === "video") {
-    const videoIndicator = document.createElement("span");
-    videoIndicator.className = "memory-card__video-indicator";
-    videoIndicator.setAttribute("aria-hidden", "true");
-    videoIndicator.textContent = "▶";
-
-    imageContainer.appendChild(videoIndicator);
-  }
-
-  return imageContainer;
-}
 
 function hideHomeSections() {
   welcomeSection.hidden = true;
@@ -168,61 +119,15 @@ function closeVideoViewer() {
   });
 }
 
-function createMemoryCard(memory) {
-  const article = document.createElement("article");
-  article.className = "memory-card";
-  article.dataset.category = memory.category;
-  article.dataset.type = memory.type;
-
-  const content = document.createElement("div");
-  content.className = "memory-card__content";
-
-  const type = document.createElement("p");
-  type.className = "memory-card__type";
-  type.textContent = getMemoryTypeLabel(memory.type);
-
-  const title = document.createElement("h3");
-  title.className = "memory-card__title";
-  title.textContent = memory.title;
-
-  const details = document.createElement("p");
-  details.className = "memory-card__details";
-  details.textContent = `${memory.place} · ${formatDate(memory.date)}`;
-
-  const link = document.createElement("a");
-  link.className = "memory-card__link";
-  link.href = memory.file;
-  link.textContent = getMemoryActionLabel(memory.type);
-
-  if (memory.type === "video") {
-    link.setAttribute(
-      "aria-label",
-      `Reproducir video: ${memory.title}`
-    );
-  } else {
-    link.setAttribute(
-      "aria-label",
-      `Ver fotografía: ${memory.title}`
-    );
-  }
-  if (memory.type === "photo") {
-    link.addEventListener("click", (event) => {
-      event.preventDefault();
-      openPhotoViewer(memory);
-    });
-  }
-
-  if (memory.type === "video") {
-    link.addEventListener("click", (event) => {
-      event.preventDefault();
-      openVideoViewer(memory);
-    });
-  }
-
-  content.append(type, title, details, link);
-  article.append(createMemoryImage(memory), content);
-
-  return article;
+function displayMemories(memories) {
+  renderMemories(
+    memoriesGrid,
+    memories,
+    {
+      onPhotoClick: openPhotoViewer,
+      onVideoClick: openVideoViewer
+    }
+  );
 }
 
 function getCategoryLabel(category) {
@@ -236,27 +141,6 @@ function getCategoryLabel(category) {
   return labels[category] || "todos";
 }
 
-function renderMemories(memories) {
-  memoriesGrid.innerHTML = "";
-
-  if (memories.length === 0) {
-    memoriesGrid.innerHTML = `
-      <p class="memories-grid__status">
-        Todavía no hay recuerdos disponibles.
-      </p>
-    `;
-
-    return;
-  }
-
-  const fragment = document.createDocumentFragment();
-
-  memories.forEach((memory) => {
-    fragment.appendChild(createMemoryCard(memory));
-  });
-
-  memoriesGrid.appendChild(fragment);
-}
 
 function updateActiveCategory(selectedCategory) {
   categoryLinks.forEach((link) => {
@@ -284,7 +168,7 @@ function filterMemoriesByCategory(category) {
         (memory) => memory.category === category
       );
 
-  renderMemories(filteredMemories);
+ displayMemories(filteredMemories);
   updateActiveCategory(category);
 
   activeFilter.textContent =
@@ -308,7 +192,8 @@ async function loadMemories() {
   try {
     allMemories = await fetchMemories();
 
-    renderMemories(allMemories);
+   
+    displayMemories(allMemories);
     updateActiveCategory("all");
   } catch (error) {
     console.error(error);
