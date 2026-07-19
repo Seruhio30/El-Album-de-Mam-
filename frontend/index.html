@@ -1,17 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta
-    name="description"
-    content="Aplicación familiar para visualizar fotos y videos de recuerdos."
-  >
+  <meta name="description" content="Aplicación familiar para visualizar fotos y videos de recuerdos.">
 
   <title>Albun de Mama</title>
 
@@ -34,10 +29,7 @@
   </header>
 
   <main>
-    <section
-      class="welcome"
-      aria-labelledby="welcome-title"
-    >
+    <section class="welcome" aria-labelledby="welcome-title">
       <div class="welcome__content">
         <h2 id="welcome-title">
           ¿Qué quieres recordar hoy?
@@ -49,20 +41,11 @@
       </div>
     </section>
 
-    <nav
-      class="categories"
-      aria-label="Categorías de recuerdos"
-    >
+    <nav class="categories" aria-label="Categorías de recuerdos">
       <ul class="categories__list">
         <li>
-          <a
-            class="category-card"
-            href="#recent-memories"
-          >
-            <span
-              class="category-card__icon"
-              aria-hidden="true"
-            >
+          <a class="category-card" href="#recent-memories">
+            <span class="category-card__icon" aria-hidden="true">
               🖼️
             </span>
 
@@ -77,14 +60,8 @@
         </li>
 
         <li>
-          <a
-            class="category-card"
-            href="#recent-memories"
-          >
-            <span
-              class="category-card__icon"
-              aria-hidden="true"
-            >
+          <a class="category-card" href="#recent-memories">
+            <span class="category-card__icon" aria-hidden="true">
               🧳
             </span>
 
@@ -93,20 +70,14 @@
             </span>
 
             <span class="category-card__description">
-              Paseos y lugares visitados
+              Paseos y todos lugares visitados
             </span>
           </a>
         </li>
 
         <li>
-          <a
-            class="category-card"
-            href="#recent-memories"
-          >
-            <span
-              class="category-card__icon"
-              aria-hidden="true"
-            >
+          <a class="category-card" href="#recent-memories">
+            <span class="category-card__icon" aria-hidden="true">
               👨‍👩‍👧‍👦
             </span>
 
@@ -121,14 +92,8 @@
         </li>
 
         <li>
-          <a
-            class="category-card"
-            href="#recent-memories"
-          >
-            <span
-              class="category-card__icon"
-              aria-hidden="true"
-            >
+          <a class="category-card" href="#recent-memories">
+            <span class="category-card__icon" aria-hidden="true">
               🎉
             </span>
 
@@ -144,11 +109,7 @@
       </ul>
     </nav>
 
-    <section
-      id="recent-memories"
-      class="recent-memories"
-      aria-labelledby="recent-memories-title"
-    >
+    <section id="recent-memories" class="recent-memories" aria-labelledby="recent-memories-title">
       <div class="section-heading">
         <h2 id="recent-memories-title">
           Recuerdos recientes
@@ -159,63 +120,10 @@
         </p>
       </div>
 
-      <div
-        class="memories-grid"
-        aria-live="polite"
-      >
-        <article class="memory-card">
-          <div class="memory-card__placeholder">
-            <span aria-hidden="true">📷</span>
-          </div>
-
-          <div class="memory-card__content">
-            <p class="memory-card__type">
-              Fotografía
-            </p>
-
-            <h3 class="memory-card__title">
-              Viaje familiar
-            </h3>
-
-            <p class="memory-card__details">
-              Guanacaste · Marzo de 2024
-            </p>
-
-            <a
-              class="memory-card__link"
-              href="#"
-            >
-              Ver recuerdo
-            </a>
-          </div>
-        </article>
-
-        <article class="memory-card">
-          <div class="memory-card__placeholder">
-            <span aria-hidden="true">▶️</span>
-          </div>
-
-          <div class="memory-card__content">
-            <p class="memory-card__type">
-              Video
-            </p>
-
-            <h3 class="memory-card__title">
-              Cumpleaños familiar
-            </h3>
-
-            <p class="memory-card__details">
-              Cartago · Junio de 2025
-            </p>
-
-            <a
-              class="memory-card__link"
-              href="#"
-            >
-              Reproducir video
-            </a>
-          </div>
-        </article>
+      <div id="memories-grid" class="memories-grid" aria-live="polite">
+        <p class="memories-grid__status">
+          Cargando recuerdos...
+        </p>
       </div>
     </section>
   </main>
@@ -228,4 +136,5 @@
 
   <script src="js/app.js"></script>
 </body>
+
 </html>

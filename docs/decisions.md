@@ -54,3 +54,15 @@ dos o cuatro columnas según el espacio disponible.
 
 La usuaria principal tiene poca experiencia tecnológica. La interfaz debe ser
 fácil de leer, tocar y comprender desde un teléfono o una tableta.
+
+## 7. Generación dinámica de recuerdos
+
+Las tarjetas de recuerdos se generan con JavaScript a partir del archivo
+`frontend/data/memories.json`.
+
+### Motivo
+
+Separar los datos del HTML permite agregar, editar o eliminar recuerdos sin
+modificar directamente la estructura de la página.
+
+También prepara el frontend para consumir una API REST en una etapa futura.

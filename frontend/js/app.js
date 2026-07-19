@@ -1,0 +1,158 @@
+const memoriesGrid = document.querySelector("#memories-grid");
+
+function formatDate(dateValue) {
+  const date = new Date(`${dateValue}T00:00:00`);
+
+  return new Intl.DateTimeFormat("es-CR", {
+    month: "long",
+    year: "numeric"
+  }).format(date);
+}
+
+function getMemoryTypeLabel(type) {
+  return type === "video" ? "Video" : "Fotografía";
+}
+
+function getMemoryActionLabel(type) {
+  return type === "video"
+    ? "Reproducir video"
+    : "Ver recuerdo";
+}
+
+function createMemoryPlaceholder(type) {
+  const placeholder = document.createElement("div");
+  placeholder.className = "memory-card__placeholder";
+
+  const icon = document.createElement("span");
+  icon.setAttribute("aria-hidden", "true");
+  icon.textContent = type === "video" ? "▶️" : "📷";
+
+  placeholder.appendChild(icon);
+
+  return placeholder;
+}
+
+function createMemoryImage(memory) {
+  const imageContainer = document.createElement("div");
+  imageContainer.className = "memory-card__media";
+
+  const image = document.createElement("img");
+  image.className = "memory-card__image";
+  image.src = memory.thumbnail;
+  image.alt = memory.description || memory.title;
+  image.loading = "lazy";
+
+  image.addEventListener("error", () => {
+    imageContainer.replaceWith(
+      createMemoryPlaceholder(memory.type)
+    );
+  });
+
+  imageContainer.appendChild(image);
+
+  if (memory.type === "video") {
+    const videoIndicator = document.createElement("span");
+    videoIndicator.className = "memory-card__video-indicator";
+    videoIndicator.setAttribute("aria-hidden", "true");
+    videoIndicator.textContent = "▶";
+
+    imageContainer.appendChild(videoIndicator);
+  }
+
+  return imageContainer;
+}
+
+function createMemoryCard(memory) {
+  const article = document.createElement("article");
+  article.className = "memory-card";
+  article.dataset.category = memory.category;
+  article.dataset.type = memory.type;
+
+  const content = document.createElement("div");
+  content.className = "memory-card__content";
+
+  const type = document.createElement("p");
+  type.className = "memory-card__type";
+  type.textContent = getMemoryTypeLabel(memory.type);
+
+  const title = document.createElement("h3");
+  title.className = "memory-card__title";
+  title.textContent = memory.title;
+
+  const details = document.createElement("p");
+  details.className = "memory-card__details";
+  details.textContent = `${memory.place} · ${formatDate(memory.date)}`;
+
+  const link = document.createElement("a");
+  link.className = "memory-card__link";
+  link.href = memory.file;
+  link.textContent = getMemoryActionLabel(memory.type);
+
+  if (memory.type === "video") {
+    link.setAttribute(
+      "aria-label",
+      `Reproducir video: ${memory.title}`
+    );
+  } else {
+    link.setAttribute(
+      "aria-label",
+      `Ver fotografía: ${memory.title}`
+    );
+  }
+
+  content.append(type, title, details, link);
+  article.append(createMemoryImage(memory), content);
+
+  return article;
+}
+
+function renderMemories(memories) {
+  memoriesGrid.innerHTML = "";
+
+  if (memories.length === 0) {
+    memoriesGrid.innerHTML = `
+      <p class="memories-grid__status">
+        Todavía no hay recuerdos disponibles.
+      </p>
+    `;
+
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+
+  memories.forEach((memory) => {
+    fragment.appendChild(createMemoryCard(memory));
+  });
+
+  memoriesGrid.appendChild(fragment);
+}
+
+function showLoadError() {
+  memoriesGrid.innerHTML = `
+    <p class="memories-grid__status memories-grid__status--error">
+      No fue posible cargar los recuerdos.
+    </p>
+  `;
+}
+
+async function loadMemories() {
+  try {
+    const response = await fetch("data/memories.json");
+
+    if (!response.ok) {
+      throw new Error(
+        `Error al cargar recuerdos: ${response.status}`
+      );
+    }
+
+    const memories = await response.json();
+
+    renderMemories(memories);
+  } catch (error) {
+    console.error(error);
+    showLoadError();
+  }
+}
+
+loadMemories();

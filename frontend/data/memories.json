@@ -1,1 +1,35 @@
-[]
+[
+  {
+    "id": 1,
+    "title": "Viaje familiar",
+    "type": "photo",
+    "category": "viajes",
+    "date": "2024-03-15",
+    "place": "Guanacaste",
+    "file": "assets/photos/viaje-familiar.jpg",
+    "thumbnail": "assets/photos/viaje-familiar.jpg",
+    "description": "Un día especial en familia durante el viaje."
+  },
+  {
+    "id": 2,
+    "title": "Cumpleaños familiar",
+    "type": "video",
+    "category": "celebraciones",
+    "date": "2025-06-10",
+    "place": "Cartago",
+    "file": "assets/videos/cumpleanos-familiar.mp4",
+    "thumbnail": "assets/thumbnails/cumpleanos-familiar.jpg",
+    "description": "Celebración de cumpleaños con toda la familia."
+  },
+  {
+    "id": 3,
+    "title": "Tarde en familia",
+    "type": "photo",
+    "category": "familia",
+    "date": "2025-12-20",
+    "place": "San José",
+    "file": "assets/photos/tarde-en-familia.jpg",
+    "thumbnail": "assets/photos/tarde-en-familia.jpg",
+    "description": "Una tarde tranquila compartiendo juntos."
+  }
+]
