@@ -1,0 +1,107 @@
+.memories-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.memory-card {
+  overflow: hidden;
+  background-color: var(--color-surface);
+  border: 0.125rem solid var(--color-border);
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--shadow-soft);
+}
+
+.memory-card__placeholder {
+  display: grid;
+  min-height: 14rem;
+  place-items: center;
+  font-size: 4rem;
+  background-color: #ebe7e1;
+}
+
+.memory-card__content {
+  padding: 1.5rem;
+}
+
+.memory-card__type {
+  margin: 0;
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.memory-card__title {
+  margin: 0.5rem 0 0;
+  font-size: var(--font-size-large);
+}
+
+.memory-card__details {
+  margin: 0.5rem 0 1.5rem;
+  color: var(--color-text-soft);
+}
+
+.memory-card__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.25rem;
+  padding: 0.75rem 1.25rem;
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+  background-color: var(--color-primary);
+  border-radius: var(--border-radius-small);
+}
+
+.memory-card__link:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.memories-grid__status {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-text-soft);
+  background-color: var(--color-surface);
+  border: 0.125rem solid var(--color-border);
+  border-radius: var(--border-radius-large);
+}
+
+.memories-grid__status--error {
+  color: #8a1c1c;
+  border-color: #c85b5b;
+}
+
+.memory-card__media {
+  position: relative;
+  min-height: 14rem;
+  overflow: hidden;
+  background-color: #ebe7e1;
+}
+
+.memory-card__image {
+  width: 100%;
+  height: 14rem;
+  object-fit: cover;
+}
+
+.memory-card__video-indicator {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  place-items: center;
+  color: #ffffff;
+  font-size: 1.5rem;
+  background-color: rgba(35, 35, 35, 0.75);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@media (min-width: 42rem) {
+  .memories-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

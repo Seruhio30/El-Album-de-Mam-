@@ -1,0 +1,113 @@
+.categories {
+  margin-bottom: 4rem;
+}
+
+.categories__list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.category-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 12rem;
+  padding: 1.5rem;
+  text-decoration: none;
+  background-color: var(--color-surface);
+  border: 0.125rem solid var(--color-border);
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--shadow-soft);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.category-card:hover {
+  transform: translateY(-0.2rem);
+  border-color: var(--color-primary);
+  box-shadow: 0 0.75rem 1.75rem rgba(35, 35, 35, 0.12);
+}
+
+.category-card__icon {
+  margin-bottom: 1rem;
+  font-size: 2.5rem;
+}
+
+.category-card__title {
+  font-size: var(--font-size-large);
+  font-weight: 700;
+}
+
+.category-card__description {
+  margin-top: 0.5rem;
+  color: var(--color-text-soft);
+}
+
+.category-card--active {
+  color: #ffffff;
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.category-card--active .category-card__description {
+  color: #ffffff;
+}
+
+.category-card--active:hover {
+  border-color: var(--color-primary-dark);
+  background-color: var(--color-primary-dark);
+}
+
+
+
+
+.category-card--active {
+  color: #ffffff;
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.category-card--active .category-card__description {
+  color: #ffffff;
+}
+
+.category-card--active:hover {
+  border-color: var(--color-primary-dark);
+  background-color: var(--color-primary-dark);
+}
+
+.section-heading__filter {
+  display: inline-block;
+  margin: 0 0 0.75rem;
+  padding: 0.35rem 0.75rem;
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  background-color: #e4edf4;
+  border-radius: 999px;
+}
+@media (min-width: 42rem) {
+  .categories__list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 70rem) {
+  .categories__list {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .category-card {
+    transition: none;
+  }
+
+  .category-card:hover {
+    transform: none;
+  }
+}
