@@ -158,3 +158,16 @@ controla directamente los visores.
 
 Separar la presentación de las tarjetas reduce las responsabilidades de
 `app.js` y evita acoplar el componente con la navegación de la aplicación.
+
+## 14. Módulo independiente para el visor de fotografías
+
+La lógica para abrir y cerrar fotografías se trasladó a
+`js/viewers/photo-viewer.js`.
+
+El módulo recibe los elementos y funciones que necesita mediante parámetros,
+en lugar de buscar directamente toda la interfaz.
+
+### Motivo
+
+Esto reduce el acoplamiento con `app.js`, mantiene la lógica del visor en un
+solo lugar y facilita futuras mejoras sin afectar otras partes de la aplicación.

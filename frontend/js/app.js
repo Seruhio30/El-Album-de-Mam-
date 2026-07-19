@@ -1,6 +1,7 @@
 import { formatDate } from "./utils/date.js";
 import { fetchMemories } from "./data/memories-service.js";
 import { renderMemories } from "./components/memory-card.js";
+import { createPhotoViewer } from "./viewers/photo-viewer.js";
 
 
 const memoriesGrid = document.querySelector("#memories-grid");
@@ -16,6 +17,18 @@ const photoViewerDetails = document.querySelector("#photo-viewer-details");
 const photoViewerDescription = document.querySelector(
   "#photo-viewer-description"
 );
+
+const photoViewerController = createPhotoViewer({
+  viewer: photoViewer,
+  backButton: photoViewerBack,
+  image: photoViewerImage,
+  title: photoViewerTitle,
+  details: photoViewerDetails,
+  description: photoViewerDescription,
+  hideHomeSections,
+  showHomeSections,
+  recentMemoriesSection
+});
 
 const videoViewer = document.querySelector("#video-viewer");
 const videoViewerBack = document.querySelector("#video-viewer-back");
@@ -48,41 +61,7 @@ function showHomeSections() {
   recentMemoriesSection.hidden = false;
 }
 
-function openPhotoViewer(memory) {
-  hideHomeSections();
 
-  photoViewerImage.src = memory.file;
-  photoViewerImage.alt = memory.description || memory.title;
-
-  photoViewerTitle.textContent = memory.title;
-  photoViewerDetails.textContent =
-    `${memory.place} · ${formatDate(memory.date)}`;
-
-  photoViewerDescription.textContent =
-    memory.description || "Recuerdo familiar.";
-
-  photoViewer.hidden = false;
-
-  photoViewerBack.focus();
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-}
-
-function closePhotoViewer() {
-  photoViewer.hidden = true;
-
-  photoViewerImage.src = "";
-  photoViewerImage.alt = "";
-
-  showHomeSections();
-
-  recentMemoriesSection.scrollIntoView({
-    behavior: "smooth"
-  });
-}
 
 function openVideoViewer(memory) {
   hideHomeSections();
@@ -124,7 +103,7 @@ function displayMemories(memories) {
     memoriesGrid,
     memories,
     {
-      onPhotoClick: openPhotoViewer,
+      onPhotoClick: photoViewerController.open,
       onVideoClick: openVideoViewer
     }
   );
@@ -211,10 +190,6 @@ categoryLinks.forEach((link) => {
   });
 });
 
-photoViewerBack.addEventListener(
-  "click",
-  closePhotoViewer
-);
 
 videoViewerBack.addEventListener(
   "click",
