@@ -44,7 +44,7 @@
     <nav class="categories" aria-label="Categorías de recuerdos">
       <ul class="categories__list">
         <li>
-          <a class="category-card" href="#recent-memories">
+          <a class="category-card" href="#recent-memories" data-category="all">
             <span class="category-card__icon" aria-hidden="true">
               🖼️
             </span>
@@ -60,7 +60,7 @@
         </li>
 
         <li>
-          <a class="category-card" href="#recent-memories">
+          <a class="category-card" href="#recent-memories" data-category="viajes">
             <span class="category-card__icon" aria-hidden="true">
               🧳
             </span>
@@ -76,7 +76,7 @@
         </li>
 
         <li>
-          <a class="category-card" href="#recent-memories">
+          <a class="category-card" href="#recent-memories" data-category="familia">
             <span class="category-card__icon" aria-hidden="true">
               👨‍👩‍👧‍👦
             </span>
@@ -92,7 +92,7 @@
         </li>
 
         <li>
-          <a class="category-card" href="#recent-memories">
+          <a class="category-card" href="#recent-memories" data-category="celebraciones">
             <span class="category-card__icon" aria-hidden="true">
               🎉
             </span>
@@ -111,12 +111,16 @@
 
     <section id="recent-memories" class="recent-memories" aria-labelledby="recent-memories-title">
       <div class="section-heading">
+        <p id="active-filter" class="section-heading__filter">
+          Mostrando todos
+        </p>
+
         <h2 id="recent-memories-title">
           Recuerdos recientes
         </h2>
 
         <p>
-          Aquí aparecerán las fotos y videos más recientes.
+          Aquí aparecen las fotos y videos disponibles.
         </p>
       </div>
 

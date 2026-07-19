@@ -485,3 +485,28 @@ main {
     padding: 2rem;
   }
 }
+
+.category-card--active {
+  color: #ffffff;
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.category-card--active .category-card__description {
+  color: #ffffff;
+}
+
+.category-card--active:hover {
+  border-color: var(--color-primary-dark);
+  background-color: var(--color-primary-dark);
+}
+
+.section-heading__filter {
+  display: inline-block;
+  margin: 0 0 0.75rem;
+  padding: 0.35rem 0.75rem;
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  background-color: #e4edf4;
+  border-radius: 999px;
+}

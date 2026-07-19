@@ -21,6 +21,14 @@ const videoViewerDescription = document.querySelector(
   "#video-viewer-description"
 );
 
+const categoryLinks = document.querySelectorAll(
+  ".category-card[data-category]"
+);
+
+const activeFilter = document.querySelector("#active-filter");
+
+let allMemories = [];
+
 function formatDate(dateValue) {
   const date = new Date(`${dateValue}T00:00:00`);
 
@@ -223,6 +231,17 @@ function createMemoryCard(memory) {
   return article;
 }
 
+function getCategoryLabel(category) {
+  const labels = {
+    all: "todos",
+    viajes: "viajes",
+    familia: "familia",
+    celebraciones: "celebraciones"
+  };
+
+  return labels[category] || "todos";
+}
+
 function renderMemories(memories) {
   memoriesGrid.innerHTML = "";
 
@@ -245,6 +264,44 @@ function renderMemories(memories) {
   memoriesGrid.appendChild(fragment);
 }
 
+function updateActiveCategory(selectedCategory) {
+  categoryLinks.forEach((link) => {
+    const isActive =
+      link.dataset.category === selectedCategory;
+
+    link.classList.toggle(
+      "category-card--active",
+      isActive
+    );
+
+    if (isActive) {
+      link.setAttribute("aria-current", "true");
+    } else {
+      link.removeAttribute("aria-current");
+    }
+  });
+}
+
+function filterMemoriesByCategory(category) {
+  const filteredMemories =
+    category === "all"
+      ? allMemories
+      : allMemories.filter(
+        (memory) => memory.category === category
+      );
+
+  renderMemories(filteredMemories);
+  updateActiveCategory(category);
+
+  activeFilter.textContent =
+    `Mostrando ${getCategoryLabel(category)}`;
+
+  recentMemoriesSection.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
 function showLoadError() {
   memoriesGrid.innerHTML = `
     <p class="memories-grid__status memories-grid__status--error">
@@ -263,15 +320,34 @@ async function loadMemories() {
       );
     }
 
-    const memories = await response.json();
+    allMemories = await response.json();
 
-    renderMemories(memories);
+    renderMemories(allMemories);
+    updateActiveCategory("all");
   } catch (error) {
     console.error(error);
     showLoadError();
   }
 }
 
-photoViewerBack.addEventListener("click", closePhotoViewer);
-videoViewerBack.addEventListener("click", closeVideoViewer);
+categoryLinks.forEach((link) => {
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+
+    const selectedCategory = link.dataset.category;
+
+    filterMemoriesByCategory(selectedCategory);
+  });
+});
+
+photoViewerBack.addEventListener(
+  "click",
+  closePhotoViewer
+);
+
+videoViewerBack.addEventListener(
+  "click",
+  closeVideoViewer
+);
+
 loadMemories();

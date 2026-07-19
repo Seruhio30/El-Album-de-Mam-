@@ -109,3 +109,19 @@ Al cerrar el visor, el video se pausa y se elimina temporalmente su fuente.
 
 Mantener la reproducción dentro de la aplicación evita que la usuaria salga del
 flujo principal o se desoriente al abrir el archivo directamente.
+
+## 11. Filtros de categorías en el frontend
+
+Las categorías de la pantalla principal filtran los recuerdos cargados desde
+`memories.json`.
+
+Los datos originales se mantienen en memoria y la galería se vuelve a renderizar
+según la categoría seleccionada.
+
+La categoría activa se comunica visualmente y mediante el atributo
+`aria-current`.
+
+### Motivo
+
+El filtrado permite encontrar recuerdos con menos pasos y sin presentar
+formularios o controles complejos a la usuaria.
