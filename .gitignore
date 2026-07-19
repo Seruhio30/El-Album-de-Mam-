@@ -22,3 +22,5 @@ frontend/assets/thumbnails/*
 !frontend/assets/photos/.gitkeep
 !frontend/assets/videos/.gitkeep
 !frontend/assets/thumbnails/.gitkeep
+
+*:Zone.Identifier
