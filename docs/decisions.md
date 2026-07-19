@@ -145,3 +145,16 @@ central difícil de mantener.
 
 Se utilizan módulos nativos del navegador para evitar dependencias y
 herramientas de compilación innecesarias durante el MVP.
+
+## 13. Componente modular para tarjetas de recuerdos
+
+La creación y renderización de las tarjetas se trasladó al módulo
+`js/components/memory-card.js`.
+
+El componente recibe funciones para abrir fotografías y videos, por lo que no
+controla directamente los visores.
+
+### Motivo
+
+Separar la presentación de las tarjetas reduce las responsabilidades de
+`app.js` y evita acoplar el componente con la navegación de la aplicación.
