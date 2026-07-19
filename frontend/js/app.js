@@ -2,6 +2,7 @@ import { formatDate } from "./utils/date.js";
 import { fetchMemories } from "./data/memories-service.js";
 import { renderMemories } from "./components/memory-card.js";
 import { createPhotoViewer } from "./viewers/photo-viewer.js";
+import { createVideoViewer } from "./viewers/video-viewer.js";
 
 
 const memoriesGrid = document.querySelector("#memories-grid");
@@ -39,6 +40,18 @@ const videoViewerDescription = document.querySelector(
   "#video-viewer-description"
 );
 
+const videoViewerController = createVideoViewer({
+  viewer: videoViewer,
+  backButton: videoViewerBack,
+  player: videoViewerPlayer,
+  title: videoViewerTitle,
+  details: videoViewerDetails,
+  description: videoViewerDescription,
+  hideHomeSections,
+  showHomeSections,
+  recentMemoriesSection
+});
+
 const categoryLinks = document.querySelectorAll(
   ".category-card[data-category]"
 );
@@ -62,49 +75,13 @@ function showHomeSections() {
 }
 
 
-
-function openVideoViewer(memory) {
-  hideHomeSections();
-
-  videoViewerPlayer.src = memory.file;
-  videoViewerTitle.textContent = memory.title;
-  videoViewerDetails.textContent =
-    `${memory.place} · ${formatDate(memory.date)}`;
-
-  videoViewerDescription.textContent =
-    memory.description || "Recuerdo familiar.";
-
-  videoViewer.hidden = false;
-
-  videoViewerBack.focus();
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-}
-
-function closeVideoViewer() {
-  videoViewerPlayer.pause();
-  videoViewerPlayer.removeAttribute("src");
-  videoViewerPlayer.load();
-
-  videoViewer.hidden = true;
-
-  showHomeSections();
-
-  recentMemoriesSection.scrollIntoView({
-    behavior: "smooth"
-  });
-}
-
 function displayMemories(memories) {
   renderMemories(
     memoriesGrid,
     memories,
     {
       onPhotoClick: photoViewerController.open,
-      onVideoClick: openVideoViewer
+     onVideoClick: videoViewerController.open
     }
   );
 }
@@ -190,10 +167,5 @@ categoryLinks.forEach((link) => {
   });
 });
 
-
-videoViewerBack.addEventListener(
-  "click",
-  closeVideoViewer
-);
 
 loadMemories();

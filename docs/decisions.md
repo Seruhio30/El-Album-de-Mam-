@@ -171,3 +171,16 @@ en lugar de buscar directamente toda la interfaz.
 
 Esto reduce el acoplamiento con `app.js`, mantiene la lógica del visor en un
 solo lugar y facilita futuras mejoras sin afectar otras partes de la aplicación.
+
+## 15. Módulo independiente para el visor de videos
+
+La lógica para abrir, reproducir y cerrar videos se trasladó a
+`js/viewers/video-viewer.js`.
+
+El módulo también pausa el video y elimina temporalmente su fuente al cerrar el
+visor.
+
+### Motivo
+
+Separar el reproductor reduce las responsabilidades de `app.js` y mantiene en
+un solo lugar el manejo del estado multimedia.
