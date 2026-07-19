@@ -41,3 +41,16 @@ La pantalla principal utiliza elementos HTML semánticos como `header`, `main`,
 
 Una estructura semántica mejora la accesibilidad, facilita el mantenimiento y
 permite que tecnologías de asistencia comprendan mejor el contenido.
+
+## 6. Diseño accesible y adaptable
+
+La interfaz utiliza texto de tamaño amplio, tarjetas con áreas táctiles grandes,
+contraste visible y estados de enfoque para navegación mediante teclado.
+
+El diseño comienza con una columna para teléfonos y aumenta progresivamente a
+dos o cuatro columnas según el espacio disponible.
+
+### Motivo
+
+La usuaria principal tiene poca experiencia tecnológica. La interfaz debe ser
+fácil de leer, tocar y comprender desde un teléfono o una tableta.
