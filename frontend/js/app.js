@@ -1,4 +1,16 @@
 const memoriesGrid = document.querySelector("#memories-grid");
+const welcomeSection = document.querySelector(".welcome");
+const categoriesSection = document.querySelector(".categories");
+const recentMemoriesSection = document.querySelector("#recent-memories");
+
+const photoViewer = document.querySelector("#photo-viewer");
+const photoViewerBack = document.querySelector("#photo-viewer-back");
+const photoViewerImage = document.querySelector("#photo-viewer-image");
+const photoViewerTitle = document.querySelector("#photo-viewer-title");
+const photoViewerDetails = document.querySelector("#photo-viewer-details");
+const photoViewerDescription = document.querySelector(
+  "#photo-viewer-description"
+);
 
 function formatDate(dateValue) {
   const date = new Date(`${dateValue}T00:00:00`);
@@ -62,6 +74,54 @@ function createMemoryImage(memory) {
   return imageContainer;
 }
 
+function hideHomeSections() {
+  welcomeSection.hidden = true;
+  categoriesSection.hidden = true;
+  recentMemoriesSection.hidden = true;
+}
+
+function showHomeSections() {
+  welcomeSection.hidden = false;
+  categoriesSection.hidden = false;
+  recentMemoriesSection.hidden = false;
+}
+
+function openPhotoViewer(memory) {
+  hideHomeSections();
+
+  photoViewerImage.src = memory.file;
+  photoViewerImage.alt = memory.description || memory.title;
+
+  photoViewerTitle.textContent = memory.title;
+  photoViewerDetails.textContent =
+    `${memory.place} · ${formatDate(memory.date)}`;
+
+  photoViewerDescription.textContent =
+    memory.description || "Recuerdo familiar.";
+
+  photoViewer.hidden = false;
+
+  photoViewerBack.focus();
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+function closePhotoViewer() {
+  photoViewer.hidden = true;
+
+  photoViewerImage.src = "";
+  photoViewerImage.alt = "";
+
+  showHomeSections();
+
+  recentMemoriesSection.scrollIntoView({
+    behavior: "smooth"
+  });
+}
+
 function createMemoryCard(memory) {
   const article = document.createElement("article");
   article.className = "memory-card";
@@ -98,6 +158,12 @@ function createMemoryCard(memory) {
       "aria-label",
       `Ver fotografía: ${memory.title}`
     );
+  }
+  if (memory.type === "photo") {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      openPhotoViewer(memory);
+    });
   }
 
   content.append(type, title, details, link);
@@ -155,4 +221,5 @@ async function loadMemories() {
   }
 }
 
+photoViewerBack.addEventListener("click", closePhotoViewer);
 loadMemories();

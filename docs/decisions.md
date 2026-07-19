@@ -80,3 +80,17 @@ Estos archivos están excluidos del repositorio mediante `.gitignore`.
 Los recuerdos familiares son privados y pueden tener un tamaño considerable.
 Los archivos originales deben mantenerse fuera del proyecto y contar con al
 menos un respaldo independiente.
+
+## 9. Visor interno de fotografías
+
+Las fotografías se abren dentro de la misma aplicación mediante un visor
+dedicado.
+
+El visor muestra la imagen, el título, la fecha, el lugar y la descripción del
+recuerdo. También incluye un botón visible para regresar a la galería.
+
+### Motivo
+
+Abrir la fotografía directamente como archivo puede desorientar a la usuaria.
+Mantener la navegación dentro de la aplicación ofrece una experiencia más
+predecible y sencilla.
