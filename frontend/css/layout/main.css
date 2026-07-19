@@ -1,0 +1,44 @@
+main {
+  width: min(100%, var(--content-width));
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+.welcome {
+  margin-bottom: 2rem;
+}
+
+.welcome__content {
+  max-width: 46rem;
+}
+
+.welcome h2,
+.section-heading h2 {
+  margin: 0;
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  line-height: 1.2;
+}
+
+.welcome p,
+.section-heading p {
+  margin: 0.75rem 0 0;
+  color: var(--color-text-soft);
+}
+
+.recent-memories {
+  scroll-margin-top: 1rem;
+}
+
+.section-heading {
+  margin-bottom: 1.5rem;
+}
+
+.section-heading__filter {
+  display: inline-block;
+  margin: 0 0 0.75rem;
+  padding: 0.35rem 0.75rem;
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  background-color: #e4edf4;
+  border-radius: 999px;
+}
