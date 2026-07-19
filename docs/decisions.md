@@ -66,3 +66,17 @@ Separar los datos del HTML permite agregar, editar o eliminar recuerdos sin
 modificar directamente la estructura de la página.
 
 También prepara el frontend para consumir una API REST en una etapa futura.
+
+
+## 8. Uso de copias multimedia durante el desarrollo
+
+Durante el desarrollo se utilizan copias de fotografías y videos dentro de
+`frontend/assets`.
+
+Estos archivos están excluidos del repositorio mediante `.gitignore`.
+
+### Motivo
+
+Los recuerdos familiares son privados y pueden tener un tamaño considerable.
+Los archivos originales deben mantenerse fuera del proyecto y contar con al
+menos un respaldo independiente.
