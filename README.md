@@ -9,7 +9,19 @@ Permitir que una adulta mayor pueda navegar por sus recuerdos de forma clara, in
 
 ## Estado actual
 
-El proyecto se encuentra en su fase inicial de configuración.
+El proyecto cuenta con una galería dinámica para visualizar fotografías y videos familiares.
+
+Actualmente incluye:
+
+- Filtros por Todos, Viajes, Familia y Celebraciones.
+- Visor interno para fotografías.
+- Reproductor interno para videos.
+- Diseño responsive y accesible.
+- JavaScript organizado en módulos.
+- CSS dividido en estilos base, layout y componentes.
+- Datos cargados desde `frontend/data/memories.json`.
+
+La aplicación está enfocada únicamente en la visualización de recuerdos. En esta etapa del MVP, la usuaria no puede subir, editar ni eliminar archivos.
 
 ## Tecnologías iniciales
 
