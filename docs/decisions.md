@@ -16,15 +16,7 @@ Los recuerdos se definirán inicialmente en un archivo JSON.
 
 Esto permite validar la interfaz antes de construir un backend y una base de datos.
 
-## 3. Archivos de prueba
-
-Durante el desarrollo se utilizarán copias de fotografías y videos.
-
-### Motivo
-
-Los archivos originales deben mantenerse fuera del proyecto y contar con respaldo.
-
-## 4. Archivos multimedia fuera de Git
+## 3. Archivos multimedia fuera de Git
 
 Las fotografías y videos estarán ignorados mediante `.gitignore`.
 
@@ -32,7 +24,7 @@ Las fotografías y videos estarán ignorados mediante `.gitignore`.
 
 Los recuerdos son privados y pueden ocupar demasiado espacio.
 
-## 5. Estructura semántica de la pantalla principal
+## 4. Estructura semántica de la pantalla principal
 
 La pantalla principal utiliza elementos HTML semánticos como `header`, `main`,
 `section`, `nav`, `article` y `footer`.
@@ -42,7 +34,7 @@ La pantalla principal utiliza elementos HTML semánticos como `header`, `main`,
 Una estructura semántica mejora la accesibilidad, facilita el mantenimiento y
 permite que tecnologías de asistencia comprendan mejor el contenido.
 
-## 6. Diseño accesible y adaptable
+## 5. Diseño accesible y adaptable
 
 La interfaz utiliza texto de tamaño amplio, tarjetas con áreas táctiles grandes,
 contraste visible y estados de enfoque para navegación mediante teclado.
@@ -55,7 +47,7 @@ dos o cuatro columnas según el espacio disponible.
 La usuaria principal tiene poca experiencia tecnológica. La interfaz debe ser
 fácil de leer, tocar y comprender desde un teléfono o una tableta.
 
-## 7. Generación dinámica de recuerdos
+## 6. Generación dinámica de recuerdos
 
 Las tarjetas de recuerdos se generan con JavaScript a partir del archivo
 `frontend/data/memories.json`.
@@ -67,8 +59,7 @@ modificar directamente la estructura de la página.
 
 También prepara el frontend para consumir una API REST en una etapa futura.
 
-
-## 8. Uso de copias multimedia durante el desarrollo
+## 7. Uso de copias multimedia durante el desarrollo
 
 Durante el desarrollo se utilizan copias de fotografías y videos dentro de
 `frontend/assets`.
@@ -81,7 +72,7 @@ Los recuerdos familiares son privados y pueden tener un tamaño considerable.
 Los archivos originales deben mantenerse fuera del proyecto y contar con al
 menos un respaldo independiente.
 
-## 9. Visor interno de fotografías
+## 8. Visor interno de fotografías
 
 Las fotografías se abren dentro de la misma aplicación mediante un visor
 dedicado.
@@ -95,7 +86,7 @@ Abrir la fotografía directamente como archivo puede desorientar a la usuaria.
 Mantener la navegación dentro de la aplicación ofrece una experiencia más
 predecible y sencilla.
 
-## 10. Reproductor interno de videos
+## 9. Reproductor interno de videos
 
 Los videos se reproducen dentro de la aplicación mediante el elemento HTML
 `video`.
@@ -110,7 +101,7 @@ Al cerrar el visor, el video se pausa y se elimina temporalmente su fuente.
 Mantener la reproducción dentro de la aplicación evita que la usuaria salga del
 flujo principal o se desoriente al abrir el archivo directamente.
 
-## 11. Filtros de categorías en el frontend
+## 10. Filtros de categorías en el frontend
 
 Las categorías de la pantalla principal filtran los recuerdos cargados desde
 `memories.json`.
@@ -126,7 +117,7 @@ La categoría activa se comunica visualmente y mediante el atributo
 El filtrado permite encontrar recuerdos con menos pasos y sin presentar
 formularios o controles complejos a la usuaria.
 
-## 12. Uso de módulos JavaScript nativos
+## 11. Uso de módulos JavaScript nativos
 
 El código JavaScript comenzó a dividirse en módulos según su responsabilidad.
 
@@ -146,7 +137,7 @@ central difícil de mantener.
 Se utilizan módulos nativos del navegador para evitar dependencias y
 herramientas de compilación innecesarias durante el MVP.
 
-## 13. Componente modular para tarjetas de recuerdos
+## 12. Componente modular para tarjetas de recuerdos
 
 La creación y renderización de las tarjetas se trasladó al módulo
 `js/components/memory-card.js`.
@@ -159,7 +150,7 @@ controla directamente los visores.
 Separar la presentación de las tarjetas reduce las responsabilidades de
 `app.js` y evita acoplar el componente con la navegación de la aplicación.
 
-## 14. Módulo independiente para el visor de fotografías
+## 13. Módulo independiente para el visor de fotografías
 
 La lógica para abrir y cerrar fotografías se trasladó a
 `js/viewers/photo-viewer.js`.
@@ -172,7 +163,7 @@ en lugar de buscar directamente toda la interfaz.
 Esto reduce el acoplamiento con `app.js`, mantiene la lógica del visor en un
 solo lugar y facilita futuras mejoras sin afectar otras partes de la aplicación.
 
-## 15. Módulo independiente para el visor de videos
+## 14. Módulo independiente para el visor de videos
 
 La lógica para abrir, reproducir y cerrar videos se trasladó a
 `js/viewers/video-viewer.js`.
@@ -185,7 +176,7 @@ visor.
 Separar el reproductor reduce las responsabilidades de `app.js` y mantiene en
 un solo lugar el manejo del estado multimedia.
 
-## 16. Módulo independiente para filtros de categorías
+## 15. Módulo independiente para filtros de categorías
 
 La lógica de filtrado se trasladó a
 `js/filters/category-filter.js`.
