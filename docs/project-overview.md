@@ -2,7 +2,7 @@
 
 ## Nombre
 
-El Album de Mama
+El Álbum de Mamá
 
 ## Problema
 
