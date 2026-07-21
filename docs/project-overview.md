@@ -30,3 +30,44 @@ La usuaria no podrá subir ni administrar archivos durante el MVP inicial.
 - Navegación consistente.
 - Pocas acciones por pantalla.
 - Seguridad y protección de los archivos.
+
+## Estado técnico actual
+
+### Frontend
+
+El frontend está desarrollado con HTML, CSS y JavaScript nativo.
+
+Actualmente incluye:
+
+* Galería dinámica de fotografías y videos.
+* Filtros por categorías.
+* Visor interno para fotografías.
+* Reproductor interno para videos.
+* Diseño responsive y accesible.
+* Datos cargados desde `frontend/data/memories.json`.
+
+### Backend
+
+El proyecto cuenta con una base inicial de backend ubicada en la carpeta `back-end/`.
+
+Tecnologías configuradas:
+
+* Java 21.
+* Spring Boot 4.1.0.
+* Maven mediante Maven Wrapper.
+* Servidor web Apache Tomcat integrado.
+
+El backend compila, supera sus pruebas iniciales y puede ejecutarse localmente en el puerto `8080`.
+
+Por ahora, el backend no contiene endpoints propios ni está conectado con el frontend.
+
+### Fuera del alcance actual
+
+Todavía no se han incorporado:
+
+* PostgreSQL.
+* Persistencia de datos.
+* Autenticación o autorización.
+* Almacenamiento de fotografías y videos.
+* Funcionalidades para subir, editar o eliminar archivos.
+* Integración entre frontend y backend.
