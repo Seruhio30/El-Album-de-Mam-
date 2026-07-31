@@ -59,7 +59,15 @@ Tecnologías configuradas:
 
 El backend compila, supera sus pruebas iniciales y puede ejecutarse localmente en el puerto `8080`.
 
-Por ahora, el backend no contiene endpoints propios ni está conectado con el frontend.
+El backend incluye un endpoint de salud disponible mediante `GET /api/health`.
+La respuesta esperada es:
+```json
+{
+  "status": "UP"
+}
+```
+Este endpoint permite comprobar que la aplicación está activa y respondiendo correctamente.
+Por ahora, el backend no está conectado con el frontend.
 
 ### Fuera del alcance actual
 
