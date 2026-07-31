@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-
+import java.util.Optional;
 @Service
 public class MemoryService {
 
@@ -47,5 +47,11 @@ public class MemoryService {
 
     public List<MemoryResponse> findAll() {
         return memories;
+    }
+    
+    public Optional<MemoryResponse> findById(Long id) {
+        return memories.stream()
+                .filter(memory -> memory.id().equals(id))
+                .findFirst();
     }
 }
