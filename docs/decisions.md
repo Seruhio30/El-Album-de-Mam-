@@ -188,3 +188,41 @@ el resultado filtrado.
 
 Esto separa el estado de los recuerdos, la lógica de filtrado y la presentación
 de las tarjetas, dejando `app.js` como coordinador.
+
+---
+
+## 16. API REST de solo lectura para recuerdos
+
+El backend expone una API REST para consultar recuerdos mediante los siguientes endpoints:
+
+- `GET /api/memories`.
+- `GET /api/memories/{id}`.
+
+La API permite únicamente operaciones de lectura.
+
+Cuando no existe un recuerdo con el identificador solicitado, el backend devuelve una respuesta `404 Not Found`.
+
+### Motivo
+
+La aplicación está enfocada en que la usuaria visualice recuerdos de forma sencilla.
+
+En esta etapa del MVP no se requieren operaciones para subir, editar o eliminar archivos desde la aplicación.
+
+Limitar la API a consultas reduce la complejidad inicial y permite validar primero la estructura del backend antes de incorporar persistencia, autenticación o administración de archivos.
+
+## 17. Recuerdos temporales definidos en memoria
+
+Los recuerdos del backend se encuentran definidos temporalmente dentro de `MemoryService`.
+
+El servicio mantiene una lista inmutable y ofrece operaciones para:
+
+- Obtener todos los recuerdos.
+- Buscar un recuerdo por su identificador.
+
+### Motivo
+
+La persistencia con PostgreSQL y JPA todavía está fuera del alcance actual.
+
+Utilizar datos en memoria permite construir y probar los endpoints REST sin agregar prematuramente configuración de base de datos, entidades, repositorios o migraciones.
+
+Esta implementación es temporal y será reemplazada cuando se incorpore persistencia.
