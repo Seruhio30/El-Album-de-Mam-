@@ -300,3 +300,134 @@ Se confirmó que:
 - El mensaje aparece cuando la API no está disponible.
 - No se muestran tarjetas antiguas.
 - Los recuerdos vuelven a aparecer al restaurar el backend y recargar la página.
+
+---
+
+## 21. PostgreSQL para persistir metadatos de recuerdos
+
+Los metadatos de los recuerdos se almacenan en una base de datos PostgreSQL.
+
+La tabla `memories` contiene:
+
+* Identificador.
+* Título.
+* Tipo.
+* Categoría.
+* Fecha.
+* Lugar.
+* Ruta del archivo.
+* Ruta de la miniatura.
+* Descripción.
+
+PostgreSQL no almacena actualmente las fotografías, videos ni miniaturas.
+
+### Motivo
+
+La lista temporal definida en `MemoryService` permitía validar la API, pero no ofrecía persistencia real.
+
+Guardar los metadatos en PostgreSQL permite conservar la información, consultarla mediante el backend y preparar el proyecto para incorporar más recuerdos sin mantenerlos escritos directamente en el código Java.
+
+La aplicación continúa siendo de solo lectura y no incorpora todavía operaciones para crear, editar o eliminar recuerdos.
+
+---
+
+## 22. Configuración de PostgreSQL mediante variables de entorno
+
+La conexión del backend con PostgreSQL se configura mediante:
+
+* `DB_URL`.
+* `DB_USERNAME`.
+* `DB_PASSWORD`.
+
+El archivo `application.properties` contiene únicamente referencias a estas variables y no incluye credenciales reales.
+
+### Motivo
+
+Las credenciales y datos de conexión pueden variar entre entornos y no deben almacenarse en Git.
+
+El uso de variables de entorno permite mantener la configuración sensible fuera del repositorio y facilita utilizar una configuración diferente durante desarrollo, pruebas o despliegue.
+
+---
+
+## 23. Flyway como responsable del esquema de la base de datos
+
+Flyway administra la creación y evolución del esquema de PostgreSQL.
+
+Las migraciones iniciales son:
+
+* `V1__create_memories_table.sql`: crea la tabla `memories`.
+* `V2__insert_initial_memories.sql`: inserta los tres recuerdos iniciales.
+
+Hibernate está configurado con:
+
+```properties
+spring.jpa.hibernate.ddl-auto=validate
+```
+
+### Motivo
+
+El esquema debe evolucionar mediante archivos SQL versionados y reproducibles.
+
+La opción `validate` permite que Hibernate compruebe la correspondencia entre las entidades y la base de datos, pero evita que cree o modifique tablas automáticamente.
+
+Las migraciones ya aplicadas no deben editarse. Los cambios futuros deben realizarse mediante nuevas migraciones.
+
+---
+
+## 24. Spring Data JPA para consultar recuerdos
+
+El backend utiliza Spring Data JPA para acceder a la tabla `memories`.
+
+La interfaz `MemoryRepository` extiende `JpaRepository<Memory, Long>` y proporciona las operaciones de consulta necesarias para:
+
+* Obtener todos los recuerdos.
+* Buscar un recuerdo por su identificador.
+
+### Motivo
+
+Los endpoints actuales requieren únicamente consultas sencillas.
+
+Spring Data JPA evita implementar manualmente código JDBC o consultas repetitivas y mantiene el acceso a datos separado del controlador y de la lógica del servicio.
+
+No se agregaron operaciones de escritura porque están fuera del alcance actual del MVP.
+
+---
+
+## 25. Separación entre entidad de persistencia y respuesta de la API
+
+La clase `Memory` representa la entidad almacenada en PostgreSQL.
+
+El record `MemoryResponse` continúa representando la respuesta pública de la API.
+
+`MemoryService` consulta las entidades mediante `MemoryRepository` y las convierte en objetos `MemoryResponse`.
+
+### Motivo
+
+Separar la entidad del contrato HTTP evita acoplar directamente la estructura de la base de datos con la respuesta que consume el frontend.
+
+Esta separación permite utilizar nombres internos como `memory_date` y `file_path` en PostgreSQL, mientras la API conserva los campos actuales:
+
+* `date`.
+* `file`.
+
+El frontend no necesitó cambios porque el contrato JSON se mantuvo sin modificaciones.
+
+---
+
+## 26. Archivos multimedia temporales fuera de PostgreSQL
+
+Las fotografías, videos y miniaturas continúan almacenados temporalmente en:
+
+```text
+frontend/assets
+```
+
+PostgreSQL almacena solamente sus metadatos y rutas relativas.
+
+### Motivo
+
+Este bloque está enfocado en sustituir los datos temporales en memoria por persistencia de metadatos.
+
+Incorporar almacenamiento privado de objetos, subida de archivos o administración multimedia aumentaría innecesariamente la complejidad del MVP.
+
+El almacenamiento privado de archivos se implementará en una etapa futura, sin modificar por ahora el funcionamiento visual del frontend.
