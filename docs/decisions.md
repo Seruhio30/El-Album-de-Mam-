@@ -272,3 +272,31 @@ La integración fue validada manualmente comprobando:
 - Apertura y cierre de fotografías.
 - Reproducción y cierre de videos.
 - Ausencia de errores CORS y errores de carga en la consola.
+
+---
+
+## 20. Mensaje accesible cuando la API no está disponible
+
+Cuando el frontend no puede cargar los recuerdos desde la API, muestra un mensaje claro dentro de la galería:
+
+`No pudimos cargar los recuerdos en este momento. Por favor, inténtalo nuevamente más tarde.`
+
+El mensaje utiliza `role="alert"` para que los lectores de pantalla lo anuncien cuando aparece.
+
+### Motivo
+
+La usuaria principal no necesita ver términos técnicos como API, servidor o backend.
+
+El mensaje debe explicar el problema de forma sencilla y mantener la interfaz comprensible, incluso cuando el backend no esté disponible.
+
+El error técnico continúa registrándose en la consola para facilitar la depuración durante el desarrollo.
+
+### Validación
+
+La funcionalidad fue probada manualmente con el backend apagado y encendido nuevamente.
+
+Se confirmó que:
+
+- El mensaje aparece cuando la API no está disponible.
+- No se muestran tarjetas antiguas.
+- Los recuerdos vuelven a aparecer al restaurar el backend y recargar la página.

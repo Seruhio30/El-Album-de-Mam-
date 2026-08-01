@@ -50,8 +50,12 @@ function showHomeSections() {
 
 function showLoadError() {
   memoriesGrid.innerHTML = `
-    <p class="memories-grid__status memories-grid__status--error">
-      No fue posible cargar los recuerdos.
+    <p
+      class="memories-grid__status memories-grid__status--error"
+      role="alert"
+    >
+      No pudimos cargar los recuerdos en este momento.
+      Por favor, inténtalo nuevamente más tarde.
     </p>
   `;
 }
