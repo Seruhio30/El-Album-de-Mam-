@@ -6,7 +6,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.http.HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN;
+import static org.springframework.http.HttpHeaders.ORIGIN;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -44,5 +47,37 @@ class MemoryControllerTests {
     void shouldReturnNotFoundWhenMemoryDoesNotExist() throws Exception {
         mockMvc.perform(get("/api/memories/999"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldAllowLocalhostFrontendOrigin() throws Exception {
+        mockMvc.perform(get("/api/memories")
+                        .header(ORIGIN, "http://localhost:5500"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(
+                        ACCESS_CONTROL_ALLOW_ORIGIN,
+                        "http://localhost:5500"
+                ));
+    }
+
+    @Test
+    void shouldAllowLoopbackFrontendOrigin() throws Exception {
+        mockMvc.perform(get("/api/memories")
+                        .header(ORIGIN, "http://127.0.0.1:5500"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(
+                        ACCESS_CONTROL_ALLOW_ORIGIN,
+                        "http://127.0.0.1:5500"
+                ));
+    }
+
+    @Test
+    void shouldNotAllowUnknownOrigin() throws Exception {
+        mockMvc.perform(get("/api/memories")
+                        .header(ORIGIN, "http://example.com"))
+                .andExpect(status().isForbidden())
+                .andExpect(header().doesNotExist(
+                        ACCESS_CONTROL_ALLOW_ORIGIN
+                ));
     }
 }
