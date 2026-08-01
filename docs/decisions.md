@@ -244,3 +244,31 @@ Durante el desarrollo, el frontend y el backend se ejecutan en puertos diferente
 Limitar CORS a los orígenes locales conocidos y a operaciones de lectura mantiene la configuración alineada con la API actual y evita habilitar acceso más amplio del necesario.
 
 Esta configuración es exclusiva para desarrollo local y deberá revisarse cuando se defina el despliegue del frontend.
+
+---
+
+## 19. Frontend conectado con la API REST de recuerdos
+
+El frontend obtiene los recuerdos mediante una solicitud `GET` a:
+
+`http://localhost:8080/api/memories`
+
+La lectura anterior desde `frontend/data/memories.json` dejó de ser la fuente activa de datos.
+
+El módulo `frontend/js/data/memories-service.js` mantiene la responsabilidad de obtener y validar la lista de recuerdos.
+
+### Motivo
+
+Mantener el acceso a datos dentro de un módulo independiente permite cambiar la fuente sin modificar `app.js`, los filtros, el visor de fotografías ni el reproductor de videos.
+
+El contrato de la API coincide con la estructura utilizada previamente por el frontend, por lo que no fue necesario adaptar nombres ni formatos.
+
+Durante el desarrollo local, el frontend debe ejecutarse en el puerto `5500` y el backend en el puerto `8080`.
+
+La integración fue validada manualmente comprobando:
+
+- Carga de los tres recuerdos.
+- Funcionamiento de los filtros.
+- Apertura y cierre de fotografías.
+- Reproducción y cierre de videos.
+- Ausencia de errores CORS y errores de carga en la consola.

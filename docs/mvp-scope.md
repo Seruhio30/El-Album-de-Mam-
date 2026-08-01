@@ -11,7 +11,7 @@
 - Navegar por categorías.
 - Abrir un recuerdo.
 - Regresar fácilmente a la galería.
-- Cargar temporalmente los recuerdos desde `frontend/data/memories.json`.
+- Cargar los recuerdos desde `GET /api/memories`.
 
 ### Backend
 
@@ -22,6 +22,7 @@
 - Devolver `404 Not Found` cuando el recuerdo solicitado no existe.
 - Mantener temporalmente los recuerdos definidos en memoria.
 - Validar los endpoints mediante pruebas automatizadas.
+- Permitir solicitudes `GET` desde el frontend local mediante CORS.
 
 ## Funcionalidades no incluidas
 
@@ -40,6 +41,8 @@
 - Inteligencia artificial.
 - Edición de fotografías.
 - Comentarios y reacciones.
+- Integración entre frontend y backend.
+- CORS.
 
 ## Tecnologías actuales
 
@@ -48,7 +51,7 @@
 - HTML.
 - CSS.
 - JavaScript nativo.
-- JSON local.
+- Consumo de API REST con `fetch`.
 
 ### Backend
 
@@ -60,6 +63,6 @@
 
 ## Limitación temporal
 
-Aunque la API REST ya existe, el frontend todavía continúa cargando los recuerdos desde `frontend/data/memories.json`.
+Los recuerdos todavía se encuentran definidos en memoria dentro del backend.
 
-La integración entre ambos componentes se realizará en una etapa futura.
+El frontend consume la API REST, pero todavía no existe persistencia con PostgreSQL ni almacenamiento privado de archivos.

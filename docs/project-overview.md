@@ -24,12 +24,12 @@ La usuaria no podrá subir ni administrar archivos durante el MVP inicial.
 
 ## Principios
 
-- Interfaz sencilla.
-- Botones grandes.
-- Textos claros.
-- Navegación consistente.
-- Pocas acciones por pantalla.
-- Seguridad y protección de los archivos.
+* Interfaz sencilla.
+* Botones grandes.
+* Textos claros.
+* Navegación consistente.
+* Pocas acciones por pantalla.
+* Seguridad y protección de los archivos.
 
 ## Estado técnico actual
 
@@ -44,7 +44,10 @@ Actualmente incluye:
 * Visor interno para fotografías.
 * Reproductor interno para videos.
 * Diseño responsive y accesible.
-* Datos cargados desde `frontend/data/memories.json`.
+* Consumo de recuerdos desde `GET /api/memories`.
+* Archivos multimedia de desarrollo almacenados en `frontend/assets`.
+
+El frontend se ejecuta localmente en el puerto `5500` y requiere que el backend esté activo para cargar los recuerdos.
 
 ### Backend
 
@@ -72,7 +75,22 @@ Cuando el recuerdo solicitado no existe, el endpoint individual devuelve una res
 
 Los recuerdos se encuentran definidos temporalmente en memoria dentro de `MemoryService`.
 
-El backend todavía no utiliza una base de datos y no está conectado con el frontend.
+El backend permite solicitudes `GET` desde el frontend local mediante una configuración CORS limitada a:
+
+* `http://localhost:5500`.
+* `http://127.0.0.1:5500`.
+
+El backend todavía no utiliza una base de datos.
+
+### Integración actual
+
+El frontend y el backend están conectados.
+
+El módulo `frontend/js/data/memories-service.js` consulta `GET http://localhost:8080/api/memories` mediante `fetch`.
+
+La respuesta de la API mantiene el contrato que necesita el frontend, por lo que los filtros, el visor de fotografías y el reproductor de videos continúan funcionando sin adaptaciones adicionales.
+
+Las rutas de fotografías, videos y miniaturas continúan apuntando a archivos ubicados en `frontend/assets`.
 
 ### Fuera del alcance actual
 
@@ -82,18 +100,6 @@ Todavía no se han incorporado:
 * JPA.
 * Persistencia de datos.
 * Autenticación o autorización.
-* Almacenamiento de fotografías y videos.
-* CORS.
+* Almacenamiento privado de fotografías y videos.
+* Almacenamiento en la nube.
 * Funcionalidades para subir, editar o eliminar archivos.
-* Integración entre frontend y backend.
-
-### Fuera del alcance actual
-
-Todavía no se han incorporado:
-
-* PostgreSQL.
-* Persistencia de datos.
-* Autenticación o autorización.
-* Almacenamiento de fotografías y videos.
-* Funcionalidades para subir, editar o eliminar archivos.
-* Integración entre frontend y backend.
