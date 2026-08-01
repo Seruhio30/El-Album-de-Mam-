@@ -12,6 +12,8 @@ Thumbs.db
 # Environment variables
 .env
 .env.*
+# IntelliJ IDEA
+.idea/
 
 # Large or private media files
 frontend/assets/photos/*
