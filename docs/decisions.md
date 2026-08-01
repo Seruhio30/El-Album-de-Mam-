@@ -226,3 +226,21 @@ La persistencia con PostgreSQL y JPA todavía está fuera del alcance actual.
 Utilizar datos en memoria permite construir y probar los endpoints REST sin agregar prematuramente configuración de base de datos, entidades, repositorios o migraciones.
 
 Esta implementación es temporal y será reemplazada cuando se incorpore persistencia.
+## 18. CORS limitado al frontend local
+
+El backend permite solicitudes de origen cruzado únicamente desde los siguientes orígenes de desarrollo:
+
+- `http://localhost:5500`.
+- `http://127.0.0.1:5500`.
+
+La configuración se aplica solamente a las rutas `/api/**` y permite únicamente solicitudes con el método `GET`.
+
+No se habilitan credenciales ni se utiliza un origen abierto mediante `*`.
+
+### Motivo
+
+Durante el desarrollo, el frontend y el backend se ejecutan en puertos diferentes y el navegador considera que pertenecen a orígenes distintos.
+
+Limitar CORS a los orígenes locales conocidos y a operaciones de lectura mantiene la configuración alineada con la API actual y evita habilitar acceso más amplio del necesario.
+
+Esta configuración es exclusiva para desarrollo local y deberá revisarse cuando se defina el despliegue del frontend.
