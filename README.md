@@ -18,7 +18,7 @@ Actualmente incluye:
 * Diseño responsive y accesible.
 * JavaScript organizado en módulos.
 * CSS dividido en estilos base, layout y componentes.
-* Datos cargados actualmente desde `frontend/data/memories.json`.
+* Datos obtenidos desde la API REST mediante `GET /api/memories`.
 * Backend inicial desarrollado con Java y Spring Boot.
 * API REST de solo lectura para consultar recuerdos.
 * Endpoint de salud para comprobar el estado del backend.
@@ -26,7 +26,7 @@ Actualmente incluye:
 
 La aplicación está enfocada únicamente en la visualización de recuerdos. En esta etapa del MVP, la usuaria no puede subir, editar ni eliminar archivos.
 
-El frontend todavía no está conectado con el backend.
+El frontend está conectado con el backend y obtiene los recuerdos mediante la API REST de solo lectura.
 
 ## Tecnologías
 
@@ -35,7 +35,7 @@ El frontend todavía no está conectado con el backend.
 * HTML.
 * CSS.
 * JavaScript nativo.
-* JSON local.
+* Consumo de API REST con `fetch`.
 
 ### Backend
 
@@ -92,6 +92,22 @@ La aplicación estará disponible en:
 http://localhost:8080
 ```
 
+## Ejecutar el frontend
+
+Desde la raíz del proyecto:
+
+```bash
+python3 -m http.server 5500 --directory frontend
+```
+
+El frontend estará disponible en:
+
+```text
+http://localhost:5500
+```
+
+El backend debe permanecer activo en `http://localhost:8080` para que el frontend pueda cargar los recuerdos.
+
 ## Ejecutar las pruebas
 
 Desde `back-end/`:
@@ -112,6 +128,7 @@ La compilación y las pruebas deben finalizar con:
 BUILD SUCCESS
 ```
 
+
 ## Estructura
 
 * `frontend/`: interfaz y archivos de la aplicación.
@@ -128,8 +145,6 @@ Todavía no se han incorporado:
 * Persistencia de recuerdos.
 * Autenticación o autorización.
 * Almacenamiento privado de archivos.
-* CORS.
-* Integración entre frontend y backend.
 * Funcionalidades para subir, editar o eliminar recuerdos.
 
 ## Reglas del proyecto
