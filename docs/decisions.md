@@ -431,3 +431,133 @@ Este bloque está enfocado en sustituir los datos temporales en memoria por pers
 Incorporar almacenamiento privado de objetos, subida de archivos o administración multimedia aumentaría innecesariamente la complejidad del MVP.
 
 El almacenamiento privado de archivos se implementará en una etapa futura, sin modificar por ahora el funcionamiento visual del frontend.
+
+---
+
+## 27. Almacenamiento multimedia privado desacoplado del frontend
+
+Las fotografías, videos y miniaturas utilizadas por la aplicación se almacenan fuera de `frontend/assets`.
+
+Durante el desarrollo local, la raíz del almacenamiento se configura mediante:
+
+```properties
+app.storage.root=${MEDIA_STORAGE_ROOT}
+```
+
+Los archivos de los tres recuerdos actuales se encuentran organizados mediante claves internas con esta estructura:
+
+```text
+memories/{id}/{tipo}/{nombre-del-archivo}
+```
+
+Ejemplos:
+
+```text
+memories/1/photo/viaje-familiar.png
+memories/2/video/cumpleanos-familiar.mp4
+memories/2/thumbnail/cumpleanos-familiar.jpg
+memories/3/photo/tarde-en-familia.jpg
+```
+
+La carpeta local utilizada durante el desarrollo se llama `private-storage` y está excluida de Git mediante `.gitignore`.
+
+### Motivo
+
+Los archivos familiares privados no deben quedar publicados como recursos estáticos del frontend ni almacenarse dentro de PostgreSQL.
+
+Separar los archivos físicos del frontend permite controlar su acceso desde el backend y prepara la arquitectura para sustituir el almacenamiento local por un proveedor privado en el futuro.
+
+La configuración mediante `MEDIA_STORAGE_ROOT` evita escribir rutas absolutas específicas de una computadora dentro del código fuente.
+
+---
+
+## 28. Storage keys internas en PostgreSQL
+
+Las columnas `file_path` y `thumbnail` de la tabla `memories` almacenan claves internas de almacenamiento en lugar de rutas públicas del frontend.
+
+La migración:
+
+```text
+V3__replace_media_paths_with_storage_keys.sql
+```
+
+reemplaza las rutas anteriores de `frontend/assets` por storage keys independientes del proveedor.
+
+### Motivo
+
+Una storage key identifica un archivo dentro del almacenamiento, pero no expone:
+
+* La ubicación física del servidor.
+* Una URL pública.
+* La estructura del frontend.
+* El proveedor de almacenamiento.
+* Credenciales o datos sensibles.
+
+Esto permite cambiar la implementación del almacenamiento sin modificar los registros de PostgreSQL ni acoplar la base de datos a un proveedor específico.
+
+---
+
+## 29. Servicio de almacenamiento local con protección de rutas
+
+El backend define la abstracción `MediaStorageService` para cargar archivos mediante una storage key.
+
+La implementación inicial `LocalMediaStorageService` resuelve los archivos dentro de la raíz configurada por `MEDIA_STORAGE_ROOT`.
+
+Antes de devolver un archivo, el servicio normaliza la ruta y comprueba que permanezca dentro de la carpeta privada configurada.
+
+### Motivo
+
+La comprobación evita intentos de path traversal mediante claves como:
+
+```text
+../outside.jpg
+```
+
+La interfaz separa la lógica de recuerdos de la ubicación física de los archivos. Una futura implementación de almacenamiento privado en la nube podrá respetar el mismo contrato sin modificar los controladores ni los servicios de recuerdos.
+
+---
+
+## 30. Entrega de archivos multimedia mediante la API
+
+El backend expone los siguientes endpoints de solo lectura:
+
+```text
+GET /api/memories/{id}/file
+GET /api/memories/{id}/thumbnail
+```
+
+`MemoryMediaService` obtiene el recuerdo desde PostgreSQL, selecciona la storage key correspondiente y solicita el archivo a `MediaStorageService`.
+
+El controlador devuelve:
+
+* `200 OK` con el archivo y su tipo multimedia cuando existe.
+* `404 Not Found` cuando el recuerdo o el archivo no existen.
+
+La respuesta pública de `GET /api/memories` y `GET /api/memories/{id}` conserva los campos `file` y `thumbnail`, pero ahora contiene URLs de la API en lugar de storage keys.
+
+### Motivo
+
+El frontend puede continuar utilizando:
+
+```javascript
+memory.file
+memory.thumbnail
+```
+
+sin conocer la ubicación física, la storage key ni el proveedor de almacenamiento.
+
+Esto conserva el contrato JSON existente y mantiene el acceso a los archivos bajo control del backend.
+
+### Validación
+
+La implementación fue validada mediante:
+
+* Pruebas unitarias de `LocalMediaStorageService`.
+* Pruebas unitarias de `MemoryMediaService`.
+* Pruebas de los endpoints multimedia con MockMvc.
+* Suite completa de 19 pruebas con 0 fallos y 0 errores.
+* Solicitudes HTTP reales para fotografías, miniaturas y videos.
+* Validación manual del frontend con los tres recuerdos.
+* Apertura de ambas fotografías en el visor.
+* Reproducción del video dentro de la aplicación.
+* Ausencia de errores relevantes de CORS o carga multimedia.

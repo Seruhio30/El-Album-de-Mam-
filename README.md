@@ -25,13 +25,15 @@ Actualmente incluye:
 * Persistencia de metadatos en PostgreSQL.
 * Acceso a datos mediante Spring Data JPA.
 * Migraciones de base de datos administradas con Flyway.
-* Pruebas automatizadas para los endpoints y la persistencia.
+* Almacenamiento privado local para fotografías, videos y miniaturas.
+* Acceso a los archivos multimedia exclusivamente mediante el backend.
+* Pruebas automatizadas para endpoints, persistencia y almacenamiento.
 
 La aplicación está enfocada únicamente en la visualización de recuerdos. En esta etapa del MVP, la usuaria no puede subir, editar ni eliminar archivos.
 
-El frontend está conectado con el backend y obtiene los recuerdos mediante la API REST de solo lectura.
+El frontend obtiene los recuerdos mediante la API REST de solo lectura.
 
-Las fotografías, videos y miniaturas continúan almacenados temporalmente en `frontend/assets/`. PostgreSQL almacena únicamente sus metadatos y rutas.
+PostgreSQL almacena los metadatos y las storage keys internas. Los archivos multimedia se guardan fuera del frontend, dentro de una ubicación privada configurable.
 
 ## Tecnologías
 
@@ -68,13 +70,15 @@ El backend se encuentra en la carpeta `back-end/` y se ejecuta localmente en el 
 
 Endpoints disponibles:
 
-| Método | Ruta                 | Descripción                                  |
-| ------ | -------------------- | -------------------------------------------- |
-| `GET`  | `/api/health`        | Comprueba que el backend está activo.        |
-| `GET`  | `/api/memories`      | Devuelve todos los recuerdos disponibles.    |
-| `GET`  | `/api/memories/{id}` | Devuelve un recuerdo según su identificador. |
+| Método | Ruta                           | Descripción                                   |
+| ------ | ------------------------------ | --------------------------------------------- |
+| `GET`  | `/api/health`                  | Comprueba que el backend está activo.         |
+| `GET`  | `/api/memories`                | Devuelve todos los recuerdos disponibles.     |
+| `GET`  | `/api/memories/{id}`           | Devuelve un recuerdo según su identificador.  |
+| `GET`  | `/api/memories/{id}/file`      | Devuelve el archivo principal de un recuerdo. |
+| `GET`  | `/api/memories/{id}/thumbnail` | Devuelve la miniatura asociada a un recuerdo. |
 
-Cuando no existe un recuerdo con el ID solicitado, la API devuelve:
+Cuando no existe el recuerdo o el archivo solicitado, la API devuelve:
 
 ```text
 404 Not Found
@@ -93,6 +97,8 @@ file
 thumbnail
 description
 ```
+
+Los campos `file` y `thumbnail` contienen URLs de la API. El frontend no recibe la ubicación física ni las storage keys internas de los archivos.
 
 Los metadatos de los recuerdos se almacenan en la tabla `memories` de PostgreSQL.
 
@@ -122,6 +128,52 @@ La base de datos local utilizada durante el desarrollo se llama:
 recuerdos
 ```
 
+## Configuración del almacenamiento privado
+
+La raíz del almacenamiento multimedia se configura mediante:
+
+```text
+MEDIA_STORAGE_ROOT
+```
+
+El valor debe ser una ruta absoluta hacia una carpeta privada del sistema.
+
+Ejemplo para Linux:
+
+```bash
+export MEDIA_STORAGE_ROOT='/ruta/absoluta/al/private-storage'
+```
+
+Spring Boot recibe esta configuración mediante:
+
+```properties
+app.storage.root=${MEDIA_STORAGE_ROOT}
+```
+
+La carpeta `private-storage/` está excluida de Git.
+
+Los archivos utilizados para validar los tres recuerdos actuales siguen esta estructura:
+
+```text
+private-storage/
+└── memories/
+    ├── 1/
+    │   └── photo/
+    ├── 2/
+    │   ├── video/
+    │   └── thumbnail/
+    └── 3/
+        └── photo/
+```
+
+PostgreSQL no almacena los archivos físicos. Las columnas `file_path` y `thumbnail` contienen storage keys como:
+
+```text
+memories/1/photo/viaje-familiar.png
+memories/2/video/cumpleanos-familiar.mp4
+memories/2/thumbnail/cumpleanos-familiar.jpg
+```
+
 ## Migraciones
 
 Flyway administra el esquema y los datos iniciales.
@@ -137,17 +189,24 @@ Migraciones actuales:
 ```text
 V1__create_memories_table.sql
 V2__insert_initial_memories.sql
+V3__replace_media_paths_with_storage_keys.sql
 ```
 
 `V1` crea la tabla `memories`.
 
-`V2` inserta tres recuerdos iniciales utilizados para validar la integración entre PostgreSQL, JPA, la API y el frontend.
+`V2` inserta los tres recuerdos iniciales utilizados para validar la integración entre PostgreSQL, JPA, la API y el frontend.
+
+`V3` reemplaza las rutas públicas de `frontend/assets` por storage keys internas independientes del proveedor de almacenamiento.
 
 Las migraciones aplicadas no deben editarse posteriormente. Los cambios futuros en el esquema o en los datos base deben realizarse mediante nuevas migraciones.
 
 ## Ejecutar el backend
 
-Antes de iniciar el backend, PostgreSQL debe estar activo y las variables de entorno deben estar definidas.
+Antes de iniciar el backend:
+
+* PostgreSQL debe estar activo.
+* Las variables `DB_URL`, `DB_USERNAME` y `DB_PASSWORD` deben estar definidas.
+* `MEDIA_STORAGE_ROOT` debe apuntar a una ruta absoluta válida.
 
 Desde la carpeta `back-end/`:
 
@@ -175,13 +234,19 @@ Desde la raíz del proyecto:
 python3 -m http.server 5500 --directory frontend
 ```
 
+Si la terminal está ubicada dentro de `back-end/`, puede utilizarse:
+
+```bash
+python3 -m http.server 5500 --directory ../frontend
+```
+
 El frontend estará disponible en:
 
 ```text
 http://localhost:5500
 ```
 
-El backend debe permanecer activo en `http://localhost:8080` para que el frontend pueda cargar los recuerdos.
+El backend debe permanecer activo en `http://localhost:8080` para que el frontend pueda cargar los recuerdos y archivos multimedia.
 
 ## Ejecutar las pruebas
 
@@ -193,19 +258,13 @@ Desde `back-end/`:
 ./mvnw test
 ```
 
-En Windows:
-
-```powershell
-.\mvnw.cmd test
-```
-
 La compilación y las pruebas deben finalizar con:
 
 ```text
 BUILD SUCCESS
 ```
 
-Las pruebas actuales validan:
+La suite actual ejecuta 19 pruebas y valida:
 
 * Carga del contexto de Spring Boot.
 * Consulta de todos los recuerdos.
@@ -214,13 +273,22 @@ Las pruebas actuales validan:
 * Configuración CORS para los orígenes locales permitidos.
 * Rechazo de orígenes no autorizados.
 * Lectura de los tres recuerdos iniciales mediante `MemoryRepository`.
+* Carga de archivos desde el almacenamiento privado local.
+* Rechazo de storage keys que intentan salir de la raíz privada.
+* Respuesta ante archivos inexistentes.
+* Resolución de archivos y miniaturas mediante `MemoryMediaService`.
+* Entrega de fotografías, videos y miniaturas mediante la API.
+* Tipos de contenido correctos para PNG, JPEG y MP4.
+* URLs públicas de la API en los campos `file` y `thumbnail`.
 
 ## Estructura
 
-* `frontend/`: interfaz y archivos de la aplicación.
-* `frontend/assets/`: fotos, videos y miniaturas utilizadas durante el desarrollo.
+* `frontend/`: interfaz web de la aplicación.
+* `frontend/assets/`: archivos temporales o copias de desarrollo; ya no es la fuente activa utilizada por la API.
 * `back-end/`: aplicación Java con Spring Boot y API REST.
+* `back-end/src/main/java/com/album_de_mama/back_end/storage/`: configuración y servicios de almacenamiento.
 * `back-end/src/main/resources/db/migration/`: migraciones SQL de Flyway.
+* `private-storage/`: archivos multimedia privados locales, excluidos de Git.
 * `docs/`: documentación técnica y decisiones del proyecto.
 
 ## Limitaciones actuales
@@ -228,15 +296,20 @@ Las pruebas actuales validan:
 Todavía no se han incorporado:
 
 * Autenticación o autorización.
-* Almacenamiento privado de archivos.
 * Funcionalidades para subir recuerdos.
 * Funcionalidades para editar recuerdos.
 * Funcionalidades para eliminar recuerdos.
 * Panel administrativo.
-* Almacenamiento de archivos en la nube.
+* Importación masiva.
+* Extracción o eliminación automática de metadatos EXIF.
+* Generación automática de miniaturas.
+* Paginación.
+* Almacenamiento privado en la nube.
 * Docker.
 
-PostgreSQL almacena únicamente los metadatos y las rutas. Los archivos físicos continúan temporalmente dentro de `frontend/assets/`.
+La implementación actual utiliza almacenamiento privado local para validar la arquitectura con tres recuerdos.
+
+No se han importado las más de 2.000 fotografías familiares.
 
 ## Reglas del proyecto
 
@@ -244,7 +317,10 @@ PostgreSQL almacena únicamente los metadatos y las rutas. Los archivos físicos
 * Probar cada cambio antes de continuar.
 * Documentar las decisiones importantes.
 * No guardar los únicos archivos originales dentro del proyecto.
+* No borrar los archivos originales después de copiarlos.
 * No subir recuerdos familiares privados al repositorio.
+* Mantener al menos un respaldo independiente de los archivos originales.
 * No guardar credenciales reales en Git.
 * Crear nuevas migraciones en lugar de modificar migraciones ya aplicadas.
+* Preferir storage keys internas sobre URLs dependientes de un proveedor.
 * Evitar complejidad innecesaria durante el MVP.
