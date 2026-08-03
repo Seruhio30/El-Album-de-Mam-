@@ -26,3 +26,5 @@ frontend/assets/thumbnails/*
 !frontend/assets/thumbnails/.gitkeep
 
 *:Zone.Identifier
+# Private media storage
+private-storage/
