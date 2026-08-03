@@ -4,6 +4,7 @@ import com.album_de_mama.back_end.memory.entity.Memory;
 import com.album_de_mama.back_end.memory.model.MemoryResponse;
 import com.album_de_mama.back_end.memory.repository.MemoryRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,21 @@ public class MemoryService {
     }
 
     private MemoryResponse toResponse(Memory memory) {
+        String baseUrl = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .build()
+                .toUriString();
+
+        String fileUrl = baseUrl
+                + "/api/memories/"
+                + memory.getId()
+                + "/file";
+
+        String thumbnailUrl = baseUrl
+                + "/api/memories/"
+                + memory.getId()
+                + "/thumbnail";
+
         return new MemoryResponse(
                 memory.getId(),
                 memory.getTitle(),
@@ -37,8 +53,8 @@ public class MemoryService {
                 memory.getCategory(),
                 memory.getDate(),
                 memory.getPlace(),
-                memory.getFile(),
-                memory.getThumbnail(),
+                fileUrl,
+                thumbnailUrl,
                 memory.getDescription()
         );
     }
