@@ -34,21 +34,12 @@ export function createCategoryFilter({
   categoryLinks,
   activeFilter,
   recentMemoriesSection,
-  getMemories,
   onFilter
 }) {
-  function filterByCategory(category) {
-    const memories = getMemories();
-
-    const filteredMemories =
-      category === "all"
-        ? memories
-        : memories.filter(
-            (memory) => memory.category === category
-          );
-
-    onFilter(filteredMemories);
-
+  function selectCategory(
+    category,
+    { shouldScroll = true } = {}
+  ) {
     updateActiveCategory(
       categoryLinks,
       category
@@ -57,23 +48,27 @@ export function createCategoryFilter({
     activeFilter.textContent =
       `Mostrando ${getCategoryLabel(category)}`;
 
-    recentMemoriesSection.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
+    onFilter(category);
+
+    if (shouldScroll) {
+      recentMemoriesSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
   }
 
   categoryLinks.forEach((link) => {
     link.addEventListener("click", (event) => {
       event.preventDefault();
 
-      filterByCategory(
+      selectCategory(
         link.dataset.category
       );
     });
   });
 
   return {
-    filterByCategory
+    selectCategory
   };
 }

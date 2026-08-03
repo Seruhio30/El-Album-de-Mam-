@@ -105,3 +105,29 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+.memories-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.memories-pagination__button {
+  min-height: 3.25rem;
+  padding: 0.75rem 1.5rem;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  background-color: var(--color-primary);
+  border: 0;
+  border-radius: var(--border-radius-small);
+  cursor: pointer;
+}
+
+.memories-pagination__button:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+}
+
+.memories-pagination__button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}

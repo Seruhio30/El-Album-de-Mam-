@@ -42,12 +42,27 @@ El frontend está desarrollado con HTML, CSS y JavaScript nativo.
 Actualmente incluye:
 
 * Galería dinámica de fotografías y videos.
-* Filtros por categorías.
+* Filtros por categorías consultados desde la API.
+* Paginación de recuerdos.
+* Botón accesible `Ver más recuerdos`.
+* Reinicio de la paginación al cambiar de categoría.
 * Visor interno para fotografías.
 * Reproductor interno para videos.
 * Diseño responsive y accesible.
 * Consumo de recuerdos desde `GET /api/memories`.
 * Carga de fotografías, videos y miniaturas mediante URLs controladas por la API.
+
+El frontend solicita los recuerdos mediante los parámetros:
+
+```text
+page
+size
+category
+```
+
+La primera página utiliza un tamaño de `6` recuerdos.
+
+El botón `Ver más recuerdos` aparece únicamente cuando la respuesta de la API indica que existe una página adicional.
 
 El frontend no accede directamente a la ubicación física ni a las storage keys de los archivos.
 
@@ -82,10 +97,44 @@ Actualmente incluye una API REST de solo lectura.
 Endpoints disponibles:
 
 * `GET /api/health`: comprueba que la aplicación está activa.
-* `GET /api/memories`: devuelve todos los recuerdos disponibles.
+* `GET /api/memories`: devuelve una página de recuerdos y permite filtrar por categoría.
 * `GET /api/memories/{id}`: devuelve un recuerdo según su identificador.
 * `GET /api/memories/{id}/file`: devuelve el archivo principal de un recuerdo.
 * `GET /api/memories/{id}/thumbnail`: devuelve la miniatura de un recuerdo.
+
+El endpoint `GET /api/memories` acepta:
+
+```text
+page
+size
+category
+```
+
+La numeración de páginas comienza en `0`.
+
+El tamaño predeterminado es `6` y el máximo permitido es `24`.
+
+Los recuerdos se ordenan de forma estable mediante:
+
+```text
+memory_date DESC
+id DESC
+```
+
+La respuesta utiliza el DTO `PagedMemoryResponse` y contiene:
+
+```text
+content
+page
+size
+totalElements
+totalPages
+hasNext
+```
+
+Cada elemento de `content` conserva el contrato de `MemoryResponse`.
+
+La API no expone directamente tipos internos de Spring como `Page` o `Pageable`.
 
 Cuando el recuerdo o el archivo solicitado no existen, la API devuelve una respuesta `404 Not Found`.
 
@@ -217,19 +266,32 @@ ID del recuerdo
 
 La implementación local podrá sustituirse en el futuro por almacenamiento privado en la nube sin cambiar el contrato de la API ni las storage keys guardadas en PostgreSQL.
 
+
 ### Integración actual
 
 El frontend y el backend están conectados.
 
-El módulo `frontend/js/data/memories-service.js` consulta:
+El módulo `frontend/js/data/memories-service.js` realiza solicitudes como:
 
 ```text
-GET http://localhost:8080/api/memories
+GET http://localhost:8080/api/memories?page=0&size=6
+GET http://localhost:8080/api/memories?page=0&size=6&category=viajes
 ```
 
 mediante `fetch`.
 
-La respuesta de la API mantiene el contrato que necesita el frontend:
+El módulo valida que la respuesta contenga:
+
+```text
+content
+page
+size
+totalElements
+totalPages
+hasNext
+```
+
+Cada recuerdo dentro de `content` conserva estos campos:
 
 ```text
 id
@@ -245,15 +307,20 @@ description
 
 Los campos `file` y `thumbnail` contienen URLs de la API, no rutas físicas ni storage keys.
 
-Los filtros, el visor de fotografías y el reproductor de videos continúan funcionando sin cambios en su lógica principal.
+`category-filter.js` administra el estado visual de la categoría seleccionada.
 
-El flujo actual es:
+`app.js` mantiene el estado de paginación, solicita la primera página al cambiar de categoría y agrega nuevas páginas cuando la usuaria pulsa `Ver más recuerdos`.
+
+Los visores de fotografías y videos continúan utilizando el mismo contrato de cada recuerdo.
+
+El flujo actual para consultar recuerdos es:
 
 ```text
 PostgreSQL
 → MemoryRepository
 → MemoryService
 → MemoryResponse
+→ PagedMemoryResponse
 → API REST
 → frontend
 ```
@@ -272,12 +339,17 @@ PostgreSQL
 
 ### Pruebas
 
-La suite actual ejecuta 19 pruebas automatizadas.
+La suite actual ejecuta 24 pruebas automatizadas.
 
 Las pruebas validan:
 
 * Carga del contexto de Spring Boot.
-* Consulta de todos los recuerdos.
+* Consulta paginada de recuerdos.
+* Orden estable por fecha e identificador.
+* Filtrado por categoría sin distinguir mayúsculas y minúsculas.
+* Valores predeterminados de paginación.
+* Límite máximo del tamaño de página.
+* Metadatos de la respuesta paginada.
 * Consulta de un recuerdo por identificador.
 * Respuesta `404 Not Found`.
 * Configuración CORS.
@@ -294,7 +366,7 @@ Las pruebas validan:
 La suite completa termina con:
 
 ```text
-Tests run: 19, Failures: 0, Errors: 0
+Tests run: 24, Failures: 0, Errors: 0
 BUILD SUCCESS
 ```
 
@@ -302,11 +374,17 @@ Las pruebas que cargan el contexto completo requieren que PostgreSQL esté activ
 
 La integración también fue validada manualmente comprobando:
 
-* Carga de los tres recuerdos.
-* Carga de las tres miniaturas.
-* Apertura de ambas fotografías.
-* Reproducción del video.
-* Ausencia de errores relevantes de CORS o carga multimedia.
+* Carga de la primera página de recuerdos.
+* Orden correcto de los recuerdos.
+* Filtrado por Viajes, Familia y Celebraciones.
+* Reinicio de la paginación al cambiar de categoría.
+* Aparición del botón `Ver más recuerdos` cuando existen páginas adicionales.
+* Desaparición del botón al llegar a la última página.
+* Apertura de fotografías en el visor interno.
+* Reproducción de videos dentro de la aplicación.
+* Carga de fotografías, miniaturas y videos mediante el backend.
+* Ausencia de errores relevantes en la consola del navegador.
+
 
 ### Fuera del alcance actual
 

@@ -561,3 +561,71 @@ La implementación fue validada mediante:
 * Apertura de ambas fotografías en el visor.
 * Reproducción del video dentro de la aplicación.
 * Ausencia de errores relevantes de CORS o carga multimedia.
+
+---
+
+## 31. Paginación y filtrado por categoría desde la API
+
+El endpoint `GET /api/memories` devuelve ahora una respuesta paginada.
+
+Acepta estos parámetros opcionales:
+
+* `page`
+* `size`
+* `category`
+
+Ejemplos:
+
+```text
+GET /api/memories?page=0&size=6
+GET /api/memories?page=0&size=6&category=viajes
+```
+
+La numeración de páginas comienza en `0`.
+
+El tamaño predeterminado es `6` y el máximo permitido es `24`.
+
+Los recuerdos se ordenan de forma estable mediante:
+
+```text
+memory_date DESC
+id DESC
+```
+
+La respuesta utiliza el DTO `PagedMemoryResponse` con estos campos:
+
+* `content`
+* `page`
+* `size`
+* `totalElements`
+* `totalPages`
+* `hasNext`
+
+Cada elemento de `content` conserva el contrato actual de `MemoryResponse`.
+
+El filtrado por categoría ahora se realiza desde la API.
+
+El frontend reinicia la paginación al cambiar de categoría y muestra el botón accesible `Ver más recuerdos` cuando existen páginas adicionales.
+
+No se implementó scroll infinito.
+
+### Motivo
+
+La paginación permite que la aplicación crezca sin cargar todos los recuerdos en una sola solicitud.
+
+El filtrado desde PostgreSQL evita descargar recuerdos de categorías que la usuaria no seleccionó.
+
+El orden por fecha e identificador evita cambios impredecibles entre páginas.
+
+El DTO propio evita exponer directamente tipos internos de Spring.
+
+### Validación
+
+* Pruebas del repositorio para paginación, filtrado y orden estable.
+* Pruebas MockMvc para el contrato paginado.
+* Pruebas de valores predeterminados y límite máximo.
+* Suite completa de 24 pruebas con 0 fallos y 0 errores.
+* Solicitudes HTTP reales con y sin categoría.
+* Prueba temporal con páginas de 2 recuerdos.
+* Reinicio de paginación al cambiar de categoría.
+* Validación manual de fotografías, videos y miniaturas.

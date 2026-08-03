@@ -4,7 +4,12 @@ import { createCategoryFilter } from "./filters/category-filter.js";
 import { createPhotoViewer } from "./viewers/photo-viewer.js";
 import { createVideoViewer } from "./viewers/video-viewer.js";
 
+const PAGE_SIZE = 6;
+
 const memoriesGrid = document.querySelector("#memories-grid");
+const loadMoreButton = document.querySelector(
+  "#load-more-memories"
+);
 
 const categoryLinks = document.querySelectorAll(
   ".category-card[data-category]"
@@ -34,7 +39,10 @@ const videoViewerDescription = document.querySelector(
   "#video-viewer-description"
 );
 
-let allMemories = [];
+let loadedMemories = [];
+let currentCategory = "all";
+let currentPage = 0;
+let hasNextPage = false;
 
 function hideHomeSections() {
   welcomeSection.hidden = true;
@@ -91,23 +99,85 @@ function displayMemories(memories) {
   });
 }
 
-const categoryFilterController = createCategoryFilter({
-  categoryLinks,
-  activeFilter,
-  recentMemoriesSection,
-  getMemories: () => allMemories,
-  onFilter: displayMemories
-});
+function updateLoadMoreButton() {
+  loadMoreButton.hidden = !hasNextPage;
+  loadMoreButton.disabled = false;
+  loadMoreButton.textContent = "Ver más recuerdos";
+}
 
-async function loadMemories() {
+async function loadFirstPage(category) {
+  currentCategory = category;
+  currentPage = 0;
+  hasNextPage = false;
+
   try {
-    allMemories = await fetchMemories();
+    const pageResponse = await fetchMemories({
+      page: currentPage,
+      size: PAGE_SIZE,
+      category: currentCategory
+    });
 
-    categoryFilterController.filterByCategory("all");
+    loadedMemories = pageResponse.content;
+    currentPage = pageResponse.page;
+    hasNextPage = pageResponse.hasNext;
+
+    displayMemories(loadedMemories);
+    updateLoadMoreButton();
   } catch (error) {
     console.error(error);
+
+    loadedMemories = [];
+    hasNextPage = false;
+
+    updateLoadMoreButton();
     showLoadError();
   }
 }
 
-loadMemories();
+async function loadNextPage() {
+  if (!hasNextPage || loadMoreButton.disabled) {
+    return;
+  }
+
+  loadMoreButton.disabled = true;
+  loadMoreButton.textContent = "Cargando...";
+
+  try {
+    const pageResponse = await fetchMemories({
+      page: currentPage + 1,
+      size: PAGE_SIZE,
+      category: currentCategory
+    });
+
+    loadedMemories = [
+      ...loadedMemories,
+      ...pageResponse.content
+    ];
+
+    currentPage = pageResponse.page;
+    hasNextPage = pageResponse.hasNext;
+
+    displayMemories(loadedMemories);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    updateLoadMoreButton();
+  }
+}
+
+loadMoreButton.addEventListener(
+  "click",
+  loadNextPage
+);
+
+const categoryFilterController = createCategoryFilter({
+  categoryLinks,
+  activeFilter,
+  recentMemoriesSection,
+  onFilter: loadFirstPage
+});
+
+categoryFilterController.selectCategory(
+  "all",
+  { shouldScroll: false }
+);

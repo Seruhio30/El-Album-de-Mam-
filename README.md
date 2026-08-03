@@ -73,18 +73,74 @@ Endpoints disponibles:
 | Método | Ruta                           | Descripción                                   |
 | ------ | ------------------------------ | --------------------------------------------- |
 | `GET`  | `/api/health`                  | Comprueba que el backend está activo.         |
-| `GET`  | `/api/memories`                | Devuelve todos los recuerdos disponibles.     |
+| `GET`  | `/api/memories`                | Devuelve una página de recuerdos.             |
 | `GET`  | `/api/memories/{id}`           | Devuelve un recuerdo según su identificador.  |
 | `GET`  | `/api/memories/{id}/file`      | Devuelve el archivo principal de un recuerdo. |
 | `GET`  | `/api/memories/{id}/thumbnail` | Devuelve la miniatura asociada a un recuerdo. |
 
-Cuando no existe el recuerdo o el archivo solicitado, la API devuelve:
+### Paginación y filtrado
+
+El endpoint `GET /api/memories` acepta estos parámetros opcionales:
+
+| Parámetro  | Descripción                                      | Valor predeterminado |
+| ---------- | ------------------------------------------------ | -------------------- |
+| `page`     | Número de página, comenzando en `0`.             | `0`                  |
+| `size`     | Cantidad máxima de recuerdos por página.         | `6`                  |
+| `category` | Categoría por la que se filtrarán los recuerdos. | Sin filtro           |
+
+El tamaño máximo permitido es `24`.
+
+Ejemplos:
 
 ```text
-404 Not Found
+GET /api/memories?page=0&size=6
+GET /api/memories?page=0&size=6&category=viajes
 ```
 
-El contrato actual de la API mantiene estos campos:
+Los recuerdos se ordenan de forma estable mediante:
+
+```text
+memory_date DESC
+id DESC
+```
+
+La respuesta paginada contiene estos campos:
+
+```text
+content
+page
+size
+totalElements
+totalPages
+hasNext
+```
+
+Ejemplo:
+
+```json
+{
+  "content": [
+    {
+      "id": 3,
+      "title": "Tarde en familia",
+      "type": "photo",
+      "category": "familia",
+      "date": "2025-12-20",
+      "place": "San José",
+      "file": "http://localhost:8080/api/memories/3/file",
+      "thumbnail": "http://localhost:8080/api/memories/3/thumbnail",
+      "description": "Una tarde tranquila compartiendo juntos."
+    }
+  ],
+  "page": 0,
+  "size": 6,
+  "totalElements": 3,
+  "totalPages": 1,
+  "hasNext": false
+}
+```
+
+Cada elemento de `content` conserva los campos actuales de `MemoryResponse`:
 
 ```text
 id
@@ -100,7 +156,17 @@ description
 
 Los campos `file` y `thumbnail` contienen URLs de la API. El frontend no recibe la ubicación física ni las storage keys internas de los archivos.
 
+La respuesta paginada utiliza el DTO propio `PagedMemoryResponse`. La API no expone directamente tipos internos de Spring como `Page` o `Pageable`.
+
+Cuando no existe el recuerdo o el archivo solicitado, la API devuelve:
+
+```text
+404 Not Found
+```
+
 Los metadatos de los recuerdos se almacenan en la tabla `memories` de PostgreSQL.
+
+---
 
 ## Configuración de PostgreSQL
 
@@ -264,10 +330,15 @@ La compilación y las pruebas deben finalizar con:
 BUILD SUCCESS
 ```
 
-La suite actual ejecuta 19 pruebas y valida:
+La suite actual ejecuta 24 pruebas y valida:
 
 * Carga del contexto de Spring Boot.
-* Consulta de todos los recuerdos.
+* Consulta paginada de recuerdos.
+* Orden estable por fecha e identificador.
+* Filtrado por categoría sin distinguir mayúsculas y minúsculas.
+* Valores predeterminados de paginación.
+* Límite máximo del tamaño de página.
+* Metadatos de la respuesta paginada.
 * Consulta de un recuerdo por ID.
 * Respuesta `404` para IDs inexistentes.
 * Configuración CORS para los orígenes locales permitidos.
