@@ -22,16 +22,64 @@ class MemoryControllerTests {
     private MockMvc mockMvc;
 
     @Test
-    void shouldReturnAllMemories() throws Exception {
+    void shouldReturnFirstPageUsingStableOrder() throws Exception {
         mockMvc.perform(get("/api/memories"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(3))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].title").value("Viaje familiar"))
-                .andExpect(jsonPath("$[0].file").value("http://localhost/api/memories/1/file"))
-                .andExpect(jsonPath("$[0].thumbnail").value("http://localhost/api/memories/1/thumbnail"))
-                .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[2].id").value(3));
+                .andExpect(jsonPath("$.content.length()").value(3))
+                .andExpect(jsonPath("$.content[0].id").value(3))
+                .andExpect(jsonPath("$.content[0].title")
+                        .value("Tarde en familia"))
+                .andExpect(jsonPath("$.content[0].file")
+                        .value("http://localhost/api/memories/3/file"))
+                .andExpect(jsonPath("$.content[0].thumbnail")
+                        .value("http://localhost/api/memories/3/thumbnail"))
+                .andExpect(jsonPath("$.content[1].id").value(2))
+                .andExpect(jsonPath("$.content[2].id").value(1))
+                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.size").value(6))
+                .andExpect(jsonPath("$.totalElements").value(3))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.hasNext").value(false));
+    }
+
+    @Test
+    void shouldFilterMemoriesByCategory() throws Exception {
+        mockMvc.perform(get("/api/memories")
+                        .param("category", "VIAJES"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].category")
+                        .value("viajes"))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.hasNext").value(false));
+    }
+
+    @Test
+    void shouldPaginateMemories() throws Exception {
+        mockMvc.perform(get("/api/memories")
+                        .param("page", "0")
+                        .param("size", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[0].id").value(3))
+                .andExpect(jsonPath("$.content[1].id").value(2))
+                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.size").value(2))
+                .andExpect(jsonPath("$.totalElements").value(3))
+                .andExpect(jsonPath("$.totalPages").value(2))
+                .andExpect(jsonPath("$.hasNext").value(true));
+    }
+
+    @Test
+    void shouldNormalizePaginationParameters() throws Exception {
+        mockMvc.perform(get("/api/memories")
+                        .param("page", "-1")
+                        .param("size", "100"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.size").value(24))
+                .andExpect(jsonPath("$.content.length()").value(3));
     }
 
     @Test

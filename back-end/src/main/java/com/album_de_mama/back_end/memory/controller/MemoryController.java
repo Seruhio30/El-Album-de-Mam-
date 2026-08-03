@@ -1,6 +1,7 @@
 package com.album_de_mama.back_end.memory.controller;
 
 import com.album_de_mama.back_end.memory.model.MemoryResponse;
+import com.album_de_mama.back_end.memory.model.PagedMemoryResponse;
 import com.album_de_mama.back_end.memory.service.MemoryMediaService;
 import com.album_de_mama.back_end.memory.service.MemoryService;
 import org.springframework.core.io.Resource;
@@ -9,16 +10,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/memories")
 public class MemoryController {
+
+    private static final int DEFAULT_PAGE_SIZE = 6;
+    private static final int MAX_PAGE_SIZE = 24;
 
     private final MemoryService memoryService;
     private final MemoryMediaService memoryMediaService;
@@ -32,8 +36,22 @@ public class MemoryController {
     }
 
     @GetMapping
-    public List<MemoryResponse> findAll() {
-        return memoryService.findAll();
+    public PagedMemoryResponse findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size,
+            @RequestParam(required = false) String category
+    ) {
+        int normalizedPage = Math.max(page, 0);
+        int normalizedSize = Math.min(
+                Math.max(size, 1),
+                MAX_PAGE_SIZE
+        );
+
+        return memoryService.findAll(
+                normalizedPage,
+                normalizedSize,
+                category
+        );
     }
 
     @GetMapping("/{id}")
