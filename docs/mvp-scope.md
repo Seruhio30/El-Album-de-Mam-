@@ -15,6 +15,9 @@
 * Cargar fotografías, videos y miniaturas mediante URLs proporcionadas por la API.
 * Mostrar un mensaje accesible cuando la API no está disponible.
 * Recuperar la galería cuando el backend vuelve a estar disponible.
+* Filtrar recuerdos por categoría mediante la API.
+* Cargar recuerdos de forma paginada.
+* Mostrar el botón accesible `Ver más recuerdos` cuando existen páginas adicionales.
 
 ### Backend
 
@@ -35,6 +38,15 @@
 * Validar endpoints, persistencia y almacenamiento mediante pruebas automatizadas.
 * Permitir solicitudes `GET` desde el frontend local mediante CORS.
 * Mantener sin cambios los nombres de los campos del contrato actual de la API.
+* Configurar una carpeta externa de importación mediante `IMPORT_ROOT`.
+* Leer manifiestos CSV en UTF-8.
+* Validar encabezados, campos, fechas, tipos y categorías del manifiesto.
+* Resolver de forma segura archivos candidatos dentro de `IMPORT_ROOT`.
+* Rechazar rutas absolutas, path traversal y archivos inexistentes.
+* Validar extensiones de fotografías, videos y miniaturas.
+* Detectar identificadores, filas y rutas repetidas dentro del manifiesto.
+* Generar un reporte consolidado de validación `dry-run`.
+* Ejecutar el `dry-run` sin copiar archivos ni modificar PostgreSQL o `private-storage`.
 
 ### Datos y archivos
 
@@ -47,6 +59,8 @@
 * Cargar tres recuerdos iniciales mediante migraciones Flyway.
 * Mantener separadas la entidad de persistencia y la respuesta de la API.
 * Mantener separada la lógica de recuerdos de la implementación física del almacenamiento.
+* Mantener separadas la carpeta de importación y la carpeta de almacenamiento definitivo.
+* Trabajar con manifiestos y archivos de prueba copiados antes de considerar una colección grande.
 
 ## Funcionalidades no incluidas
 
@@ -57,11 +71,10 @@
 * Autenticación o autorización.
 * Panel administrativo.
 * Almacenamiento privado en la nube.
-* Importación masiva.
+* Importación real de archivos y metadatos.
 * Extracción automática de metadatos EXIF.
 * Eliminación automática de metadatos EXIF.
 * Generación automática de miniaturas.
-* Paginación.
 * Docker.
 * Reconocimiento facial.
 * Inteligencia artificial.
