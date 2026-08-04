@@ -339,7 +339,7 @@ PostgreSQL
 
 ### Pruebas
 
-La suite actual ejecuta 24 pruebas automatizadas.
+La suite actual ejecuta 65 pruebas automatizadas.
 
 Las pruebas validan:
 
@@ -362,11 +362,23 @@ Las pruebas validan:
 * Entrega de fotografías, miniaturas y videos mediante la API.
 * Tipos de contenido correctos para PNG, JPEG y MP4.
 * URLs públicas correctas en `file` y `thumbnail`.
+* Configuración independiente de `IMPORT_ROOT`.
+* Lectura segura de manifiestos CSV en UTF-8.
+* Validación exacta de encabezados.
+* Validación de campos obligatorios y límites de longitud.
+* Validación de identificadores positivos y fechas ISO válidas.
+* Validación de tipos y categorías permitidos.
+* Resolución segura de archivos candidatos dentro de `IMPORT_ROOT`.
+* Rechazo de rutas absolutas, path traversal y archivos inexistentes.
+* Validación de extensiones de fotografías, videos y miniaturas.
+* Detección de identificadores, filas y rutas repetidas dentro del manifiesto.
+* Generación de un reporte consolidado de validación `dry-run`.
+* Ejecución sin copiar archivos ni modificar PostgreSQL o `private-storage`.
 
 La suite completa termina con:
 
 ```text
-Tests run: 24, Failures: 0, Errors: 0
+Tests run: 65, Failures: 0, Errors: 0
 BUILD SUCCESS
 ```
 
@@ -384,6 +396,11 @@ La integración también fue validada manualmente comprobando:
 * Reproducción de videos dentro de la aplicación.
 * Carga de fotografías, miniaturas y videos mediante el backend.
 * Ausencia de errores relevantes en la consola del navegador.
+* Validación manual de un manifiesto externo con 4 recuerdos.
+* Uso de 6 archivos copiados fuera del repositorio.
+* Reporte `dry-run` válido con 4 filas válidas y 0 inválidas.
+* Eliminación de la prueba temporal después de la validación.
+* Repositorio limpio al finalizar la comprobación.
 
 
 ### Fuera del alcance actual
@@ -396,8 +413,11 @@ Todavía no se han incorporado:
 * Funcionalidades para editar recuerdos.
 * Funcionalidades para eliminar recuerdos.
 * Panel administrativo.
-* Importación masiva.
+* Importación real de archivos y metadatos.
 * Extracción o eliminación automática de metadatos EXIF.
 * Generación automática de miniaturas.
-* Paginación.
 * Docker.
+
+Existe una validación previa `dry-run` para manifiestos CSV y archivos candidatos.
+
+Esta validación no copia archivos, no genera storage keys definitivas y no inserta ni actualiza registros en PostgreSQL.
