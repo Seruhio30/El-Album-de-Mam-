@@ -216,6 +216,28 @@ Spring Boot recibe esta configuración mediante:
 app.storage.root=${MEDIA_STORAGE_ROOT}
 ```
 
+La carpeta externa utilizada para validar futuras importaciones se configura de forma independiente mediante:
+
+```text
+IMPORT_ROOT
+```
+
+Ejemplo para Linux:
+
+```bash
+export IMPORT_ROOT='/ruta/absoluta/a/recuerdos-import'
+```
+
+Spring Boot recibe esta configuración mediante:
+
+```properties
+app.import.root=${IMPORT_ROOT}
+```
+
+`IMPORT_ROOT` se utiliza únicamente como origen de manifiestos y archivos candidatos durante la validación `dry-run`.
+
+La carpeta de importación debe permanecer separada de `private-storage`.
+
 La carpeta `private-storage/` está excluida de Git.
 
 Los archivos utilizados para validar los tres recuerdos actuales siguen esta estructura:
@@ -330,7 +352,7 @@ La compilación y las pruebas deben finalizar con:
 BUILD SUCCESS
 ```
 
-La suite actual ejecuta 24 pruebas y valida:
+La suite actual ejecuta 65 pruebas y valida:
 
 * Carga del contexto de Spring Boot.
 * Consulta paginada de recuerdos.
@@ -351,6 +373,25 @@ La suite actual ejecuta 24 pruebas y valida:
 * Entrega de fotografías, videos y miniaturas mediante la API.
 * Tipos de contenido correctos para PNG, JPEG y MP4.
 * URLs públicas de la API en los campos `file` y `thumbnail`.
+* Configuración independiente de `IMPORT_ROOT`.
+* Lectura segura de manifiestos CSV en UTF-8.
+* Validación exacta de encabezados CSV.
+* Validación de campos obligatorios y límites de longitud.
+* Validación de identificadores positivos y fechas ISO válidas.
+* Validación de tipos y categorías permitidos.
+* Resolución segura de archivos candidatos dentro de `IMPORT_ROOT`.
+* Rechazo de rutas absolutas, path traversal y archivos inexistentes.
+* Validación de extensiones para fotografías, videos y miniaturas.
+* Detección de identificadores, filas y rutas repetidas dentro del manifiesto.
+* Generación de un reporte consolidado de validación `dry-run`.
+* Ejecución del flujo sin copiar archivos ni modificar PostgreSQL o `private-storage`.
+
+La suite completa termina con:
+
+```text
+Tests run: 65, Failures: 0, Errors: 0
+BUILD SUCCESS
+```
 
 ## Estructura
 
@@ -358,6 +399,7 @@ La suite actual ejecuta 24 pruebas y valida:
 * `frontend/assets/`: archivos temporales o copias de desarrollo; ya no es la fuente activa utilizada por la API.
 * `back-end/`: aplicación Java con Spring Boot y API REST.
 * `back-end/src/main/java/com/album_de_mama/back_end/storage/`: configuración y servicios de almacenamiento.
+* `back-end/src/main/java/com/album_de_mama/back_end/importvalidation/`: configuración, modelos y servicios de validación `dry-run`.
 * `back-end/src/main/resources/db/migration/`: migraciones SQL de Flyway.
 * `private-storage/`: archivos multimedia privados locales, excluidos de Git.
 * `docs/`: documentación técnica y decisiones del proyecto.
@@ -371,14 +413,15 @@ Todavía no se han incorporado:
 * Funcionalidades para editar recuerdos.
 * Funcionalidades para eliminar recuerdos.
 * Panel administrativo.
-* Importación masiva.
+* Importación real de archivos y metadatos.
 * Extracción o eliminación automática de metadatos EXIF.
 * Generación automática de miniaturas.
-* Paginación.
 * Almacenamiento privado en la nube.
 * Docker.
 
 La implementación actual utiliza almacenamiento privado local para validar la arquitectura con tres recuerdos.
+
+Existe una validación previa `dry-run` para manifiestos CSV y archivos candidatos, pero todavía no copia archivos, genera storage keys ni inserta recuerdos en PostgreSQL.
 
 No se han importado las más de 2.000 fotografías familiares.
 
