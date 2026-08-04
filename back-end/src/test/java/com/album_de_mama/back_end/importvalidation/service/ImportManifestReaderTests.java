@@ -15,6 +15,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ImportManifestReaderTests {
 
+    private static final String INVALID_HEADER_MESSAGE =
+            "El encabezado del manifiesto no coincide con el contrato esperado.";
+
     @TempDir
     Path importRoot;
 
@@ -88,6 +91,75 @@ class ImportManifestReaderTests {
         assertEquals(
                 "La ruta del manifiesto no es válida.",
                 exception.getMessage()
+        );
+    }
+
+    @Test
+    void shouldRejectMissingHeaderColumn() throws IOException {
+        writeManifest(
+                """
+                id,title,type,category,date,place,file,thumbnail
+                10,Viaje,photo,viajes,2024-03-15,Guanacaste,photos/viaje.jpg,photos/viaje.jpg
+                """
+        );
+
+        assertInvalidHeader();
+    }
+
+    @Test
+    void shouldRejectAdditionalHeaderColumn() throws IOException {
+        writeManifest(
+                """
+                id,title,type,category,date,place,file,thumbnail,description,notes
+                10,Viaje,photo,viajes,2024-03-15,Guanacaste,photos/viaje.jpg,photos/viaje.jpg,Un viaje,Nota
+                """
+        );
+
+        assertInvalidHeader();
+    }
+
+    @Test
+    void shouldRejectIncorrectHeaderOrder() throws IOException {
+        writeManifest(
+                """
+                title,id,type,category,date,place,file,thumbnail,description
+                Viaje,10,photo,viajes,2024-03-15,Guanacaste,photos/viaje.jpg,photos/viaje.jpg,Un viaje
+                """
+        );
+
+        assertInvalidHeader();
+    }
+
+    @Test
+    void shouldRejectRepeatedHeader() throws IOException {
+        writeManifest(
+                """
+                id,title,type,category,date,place,file,thumbnail,title
+                10,Viaje,photo,viajes,2024-03-15,Guanacaste,photos/viaje.jpg,photos/viaje.jpg,Un viaje
+                """
+        );
+
+        assertInvalidHeader();
+    }
+
+    private void assertInvalidHeader() {
+        ImportManifestReader reader = createReader();
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> reader.read("manifest.csv")
+        );
+
+        assertEquals(
+                INVALID_HEADER_MESSAGE,
+                exception.getMessage()
+        );
+    }
+
+    private void writeManifest(String content) throws IOException {
+        Files.writeString(
+                importRoot.resolve("manifest.csv"),
+                content
         );
     }
 

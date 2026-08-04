@@ -5,6 +5,7 @@ import com.album_de_mama.back_end.importvalidation.model.ImportManifestRow;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.csv.DuplicateHeaderMode;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -18,10 +19,23 @@ import java.util.List;
 @Service
 public class ImportManifestReader {
 
+    private static final List<String> EXPECTED_HEADERS = List.of(
+            "id",
+            "title",
+            "type",
+            "category",
+            "date",
+            "place",
+            "file",
+            "thumbnail",
+            "description"
+    );
+
     private static final CSVFormat CSV_FORMAT = CSVFormat.DEFAULT
             .builder()
             .setHeader()
             .setSkipHeaderRecord(true)
+            .setDuplicateHeaderMode(DuplicateHeaderMode.ALLOW_ALL)
             .get();
 
     private final Path importRoot;
@@ -57,6 +71,8 @@ public class ImportManifestReader {
                 );
                 CSVParser parser = CSV_FORMAT.parse(reader)
         ) {
+            validateHeaders(parser.getHeaderNames());
+
             List<ImportManifestRow> rows = new ArrayList<>();
 
             for (CSVRecord record : parser) {
@@ -68,6 +84,14 @@ public class ImportManifestReader {
             throw new IllegalArgumentException(
                     "No fue posible leer el manifiesto.",
                     exception
+            );
+        }
+    }
+
+    private void validateHeaders(List<String> actualHeaders) {
+        if (!EXPECTED_HEADERS.equals(actualHeaders)) {
+            throw new IllegalArgumentException(
+                    "El encabezado del manifiesto no coincide con el contrato esperado."
             );
         }
     }
