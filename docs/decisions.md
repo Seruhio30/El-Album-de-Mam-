@@ -629,3 +629,183 @@ El DTO propio evita exponer directamente tipos internos de Spring.
 * Prueba temporal con páginas de 2 recuerdos.
 * Reinicio de paginación al cambiar de categoría.
 * Validación manual de fotografías, videos y miniaturas.
+
+
+---
+
+## 32. Contrato del manifiesto CSV para validación de importaciones
+
+La futura importación masiva utilizará un manifiesto CSV ubicado dentro de una carpeta externa configurada mediante `IMPORT_ROOT`.
+
+El manifiesto describirá los metadatos y los archivos candidatos de cada recuerdo.
+
+No contendrá rutas físicas absolutas ni storage keys definitivas de `private-storage`.
+
+Las columnas obligatorias, en su orden exacto, serán:
+
+```csv
+id,title,type,category,date,place,file,thumbnail,description
+```
+
+### Reglas de los campos
+
+* `id`: número entero positivo y único dentro del manifiesto.
+* `title`: texto obligatorio con un máximo de 150 caracteres.
+* `type`: únicamente `photo` o `video`.
+* `category`: únicamente `viajes`, `familia` o `celebraciones` durante el MVP.
+* `date`: fecha obligatoria en formato ISO `YYYY-MM-DD`.
+* `place`: texto obligatorio con un máximo de 100 caracteres.
+* `file`: ruta relativa al archivo principal dentro de `IMPORT_ROOT`.
+* `thumbnail`: ruta relativa a la miniatura dentro de `IMPORT_ROOT`.
+* `description`: texto obligatorio con un máximo de 500 caracteres.
+
+Los campos de texto no podrán quedar vacíos después de eliminar espacios al inicio y al final.
+
+El encabezado deberá contener todas las columnas obligatorias en el orden establecido.
+
+No se permitirán columnas faltantes, desconocidas o repetidas.
+
+### Fotografías y videos
+
+Para una fotografía:
+
+* `type` deberá ser `photo`.
+* `file` deberá señalar un archivo de imagen admitido.
+* `thumbnail` podrá contener la misma ruta relativa que `file`.
+
+Para un video:
+
+* `type` deberá ser `video`.
+* `file` deberá señalar un archivo de video admitido.
+* `thumbnail` deberá señalar una imagen separada.
+
+Las extensiones y los tipos admitidos serán validados antes de considerar válida una fila.
+
+### Rutas de origen
+
+Los campos `file` y `thumbnail` representarán rutas relativas dentro de `IMPORT_ROOT`.
+
+Ejemplos válidos:
+
+```text
+photos/viaje-familiar.jpg
+videos/cumpleanos-familiar.mp4
+thumbnails/cumpleanos-familiar.jpg
+```
+
+El manifiesto no utilizará storage keys definitivas como:
+
+```text
+memories/10/photo/viaje-familiar.jpg
+```
+
+Las storage keys definitivas pertenecerán a una futura etapa de importación real y no serán generadas durante el `dry-run`.
+
+### Seguridad de rutas
+
+Las rutas de `file` y `thumbnail` se resolverán exclusivamente dentro de `IMPORT_ROOT`.
+
+No se permitirán:
+
+* Rutas absolutas.
+* Rutas vacías.
+* Segmentos que escapen de la raíz mediante `..`.
+* Archivos inexistentes.
+* Directorios utilizados como archivos.
+* Resoluciones que terminen fuera de la raíz configurada.
+
+La carpeta de importación permanecerá separada de `private-storage`.
+
+El proceso deberá normalizar las rutas antes de comprobar que continúan dentro de `IMPORT_ROOT`.
+
+### Duplicados dentro del manifiesto
+
+El `dry-run` detectará:
+
+* Identificadores repetidos.
+* Filas completamente repetidas.
+* Archivos principales reutilizados por recuerdos diferentes.
+* Miniaturas reutilizadas por recuerdos diferentes.
+* Una misma ruta utilizada de manera incompatible.
+
+La repetición de la misma ruta en `file` y `thumbnail` dentro de una única fila de tipo `photo` será válida y no se considerará un duplicado.
+
+La detección de duplicados se limitará inicialmente al contenido del manifiesto.
+
+El `dry-run` no consultará PostgreSQL para detectar identificadores o archivos que ya existan en la colección definitiva.
+
+### Reporte de validación
+
+El resultado del proceso será un reporte de solo lectura.
+
+El reporte deberá indicar como mínimo:
+
+* Si el manifiesto es válido o inválido.
+* Cantidad total de filas procesadas.
+* Cantidad de filas válidas.
+* Cantidad de filas inválidas.
+* Errores generales del manifiesto.
+* Número de fila asociado a cada problema.
+* Campo relacionado con el problema, cuando corresponda.
+* Mensaje claro que explique la causa.
+
+Una fila podrá contener más de un problema.
+
+El reporte deberá recopilar todos los problemas detectables en una ejecución, en lugar de detenerse después del primer error.
+
+### Límites del dry-run
+
+La validación no realizará ninguna de las siguientes operaciones:
+
+* Copiar archivos.
+* Mover archivos.
+* Renombrar archivos.
+* Eliminar archivos.
+* Modificar `private-storage`.
+* Insertar registros en PostgreSQL.
+* Actualizar registros en PostgreSQL.
+* Generar storage keys definitivas.
+* Generar miniaturas.
+* Leer metadatos EXIF.
+* Limpiar metadatos EXIF.
+* Convertir u optimizar archivos multimedia.
+* Modificar la API.
+* Modificar el frontend.
+
+El proceso trabajará únicamente con archivos de prueba copiados dentro de la carpeta externa de importación.
+
+### Motivo
+
+Separar las rutas de origen de las storage keys definitivas evita acoplar el manifiesto al proveedor o a la estructura final de almacenamiento.
+
+Definir el contrato antes de implementar el lector reduce ambigüedades y permite crear pruebas automatizadas precisas.
+
+El modo `dry-run` proporciona una barrera de seguridad antes de cualquier futura operación masiva sobre archivos o datos.
+
+### Validación
+
+La implementación fue validada mediante:
+
+* Suite completa de 65 pruebas automatizadas.
+* 0 fallos.
+* 0 errores.
+* `BUILD SUCCESS`.
+* Pruebas del enlace de `IMPORT_ROOT`.
+* Pruebas de lectura segura del manifiesto CSV.
+* Pruebas de encabezados faltantes, adicionales, desordenados y repetidos.
+* Pruebas de campos obligatorios y límites de longitud.
+* Pruebas de identificadores positivos.
+* Pruebas de fechas ISO válidas y fechas inexistentes.
+* Pruebas de tipos y categorías permitidos.
+* Pruebas de rutas absolutas, path traversal y archivos inexistentes.
+* Pruebas de archivos regulares y extensiones admitidas.
+* Pruebas de fotografías y videos con miniaturas.
+* Pruebas de identificadores, filas y rutas repetidas.
+* Pruebas del reporte consolidado del `dry-run`.
+* Validación manual con un manifiesto de 4 recuerdos.
+* Uso de 6 archivos copiados dentro de una carpeta externa fuera del repositorio.
+* Reporte manual con 4 filas válidas y 0 filas inválidas.
+* Eliminación de la prueba temporal después de la comprobación.
+* Repositorio limpio al finalizar.
+
+La validación manual confirmó que el proceso no modificó PostgreSQL, `private-storage`, la API ni el frontend.
