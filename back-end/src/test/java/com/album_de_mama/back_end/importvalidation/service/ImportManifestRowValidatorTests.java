@@ -171,6 +171,73 @@ class ImportManifestRowValidatorTests {
         );
     }
 
+    @Test
+    void shouldAcceptAllAllowedTypesAndCategories() {
+        List<ImportValidationIssue> photoIssues =
+                validator.validate(
+                        withTypeAndCategory(
+                                "photo",
+                                "familia"
+                        )
+                );
+
+        List<ImportValidationIssue> videoIssues =
+                validator.validate(
+                        withTypeAndCategory(
+                                "video",
+                                "celebraciones"
+                        )
+                );
+
+        assertTrue(photoIssues.isEmpty());
+        assertTrue(videoIssues.isEmpty());
+    }
+
+    @Test
+    void shouldRejectUnsupportedType() {
+        ImportManifestRow row =
+                withTypeAndCategory("audio", "viajes");
+
+        List<ImportValidationIssue> issues = validator.validate(row);
+
+        assertEquals(1, issues.size());
+        assertIssue(
+                issues,
+                2,
+                "type",
+                "El tipo debe ser photo o video."
+        );
+    }
+
+    @Test
+    void shouldRejectUnsupportedCategory() {
+        ImportManifestRow row =
+                withTypeAndCategory("photo", "mascotas");
+
+        List<ImportValidationIssue> issues = validator.validate(row);
+
+        assertEquals(1, issues.size());
+        assertIssue(
+                issues,
+                2,
+                "category",
+                "La categoría debe ser viajes, familia o celebraciones."
+        );
+    }
+
+    @Test
+    void shouldTrimTypeAndCategoryBeforeValidation() {
+        ImportManifestRow row =
+                withTypeAndCategory(
+                        " photo ",
+                        " viajes "
+                );
+
+        List<ImportValidationIssue> issues = validator.validate(row);
+
+        assertTrue(issues.isEmpty());
+    }
+
     private ImportManifestRow validRow() {
         return new ImportManifestRow(
                 2,
@@ -183,6 +250,26 @@ class ImportManifestRowValidatorTests {
                 "photos/viaje.jpg",
                 "photos/viaje.jpg",
                 "Un día especial en familia."
+        );
+    }
+
+    private ImportManifestRow withTypeAndCategory(
+            String type,
+            String category
+    ) {
+        ImportManifestRow row = validRow();
+
+        return new ImportManifestRow(
+                row.rowNumber(),
+                row.id(),
+                row.title(),
+                type,
+                category,
+                row.date(),
+                row.place(),
+                row.file(),
+                row.thumbnail(),
+                row.description()
         );
     }
 

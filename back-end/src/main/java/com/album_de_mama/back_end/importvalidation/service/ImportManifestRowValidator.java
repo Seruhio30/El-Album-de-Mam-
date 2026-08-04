@@ -10,6 +10,7 @@ import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ImportManifestRowValidator {
@@ -17,6 +18,17 @@ public class ImportManifestRowValidator {
     private static final DateTimeFormatter DATE_FORMAT =
             DateTimeFormatter.ISO_LOCAL_DATE
                     .withResolverStyle(ResolverStyle.STRICT);
+
+    private static final Set<String> ALLOWED_TYPES = Set.of(
+            "photo",
+            "video"
+    );
+
+    private static final Set<String> ALLOWED_CATEGORIES = Set.of(
+            "viajes",
+            "familia",
+            "celebraciones"
+    );
 
     public List<ImportValidationIssue> validate(
             ImportManifestRow row
@@ -27,6 +39,8 @@ public class ImportManifestRowValidator {
         validateLengths(row, issues);
         validateId(row, issues);
         validateDate(row, issues);
+        validateType(row, issues);
+        validateCategory(row, issues);
 
         return List.copyOf(issues);
     }
@@ -155,6 +169,65 @@ public class ImportManifestRowValidator {
                     row.rowNumber(),
                     "date",
                     "La fecha debe usar el formato válido YYYY-MM-DD.",
+                    issues
+            );
+        }
+    }
+
+    private void validateType(
+            ImportManifestRow row,
+            List<ImportValidationIssue> issues
+    ) {
+        validateAllowedValue(
+                row.rowNumber(),
+                "type",
+                row.type(),
+                20,
+                ALLOWED_TYPES,
+                "El tipo debe ser photo o video.",
+                issues
+        );
+    }
+
+    private void validateCategory(
+            ImportManifestRow row,
+            List<ImportValidationIssue> issues
+    ) {
+        validateAllowedValue(
+                row.rowNumber(),
+                "category",
+                row.category(),
+                50,
+                ALLOWED_CATEGORIES,
+                "La categoría debe ser viajes, familia o celebraciones.",
+                issues
+        );
+    }
+
+    private void validateAllowedValue(
+            int rowNumber,
+            String field,
+            String value,
+            int maximumLength,
+            Set<String> allowedValues,
+            String message,
+            List<ImportValidationIssue> issues
+    ) {
+        if (isBlank(value)) {
+            return;
+        }
+
+        String normalizedValue = value.trim();
+
+        if (normalizedValue.length() > maximumLength) {
+            return;
+        }
+
+        if (!allowedValues.contains(normalizedValue)) {
+            addIssue(
+                    rowNumber,
+                    field,
+                    message,
                     issues
             );
         }
