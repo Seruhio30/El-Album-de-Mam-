@@ -781,3 +781,31 @@ Separar las rutas de origen de las storage keys definitivas evita acoplar el man
 Definir el contrato antes de implementar el lector reduce ambigüedades y permite crear pruebas automatizadas precisas.
 
 El modo `dry-run` proporciona una barrera de seguridad antes de cualquier futura operación masiva sobre archivos o datos.
+
+### Validación
+
+La implementación fue validada mediante:
+
+* Suite completa de 65 pruebas automatizadas.
+* 0 fallos.
+* 0 errores.
+* `BUILD SUCCESS`.
+* Pruebas del enlace de `IMPORT_ROOT`.
+* Pruebas de lectura segura del manifiesto CSV.
+* Pruebas de encabezados faltantes, adicionales, desordenados y repetidos.
+* Pruebas de campos obligatorios y límites de longitud.
+* Pruebas de identificadores positivos.
+* Pruebas de fechas ISO válidas y fechas inexistentes.
+* Pruebas de tipos y categorías permitidos.
+* Pruebas de rutas absolutas, path traversal y archivos inexistentes.
+* Pruebas de archivos regulares y extensiones admitidas.
+* Pruebas de fotografías y videos con miniaturas.
+* Pruebas de identificadores, filas y rutas repetidas.
+* Pruebas del reporte consolidado del `dry-run`.
+* Validación manual con un manifiesto de 4 recuerdos.
+* Uso de 6 archivos copiados dentro de una carpeta externa fuera del repositorio.
+* Reporte manual con 4 filas válidas y 0 filas inválidas.
+* Eliminación de la prueba temporal después de la comprobación.
+* Repositorio limpio al finalizar.
+
+La validación manual confirmó que el proceso no modificó PostgreSQL, `private-storage`, la API ni el frontend.
