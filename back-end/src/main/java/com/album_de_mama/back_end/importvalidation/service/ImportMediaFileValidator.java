@@ -1,12 +1,9 @@
 package com.album_de_mama.back_end.importvalidation.service;
 
-import com.album_de_mama.back_end.importvalidation.config.ImportProperties;
 import com.album_de_mama.back_end.importvalidation.model.ImportManifestRow;
 import com.album_de_mama.back_end.importvalidation.model.ImportValidationIssue;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,14 +23,12 @@ public class ImportMediaFileValidator {
             "mp4"
     );
 
-    private final Path importRoot;
+    private final ImportMediaPathResolver pathResolver;
 
     public ImportMediaFileValidator(
-            ImportProperties importProperties
+            ImportMediaPathResolver pathResolver
     ) {
-        this.importRoot = importProperties.getRoot()
-                .toAbsolutePath()
-                .normalize();
+        this.pathResolver = pathResolver;
     }
 
     public List<ImportValidationIssue> validate(
@@ -56,7 +51,7 @@ public class ImportMediaFileValidator {
             return;
         }
 
-        Path resolvedFile = validatePath(
+        Path resolvedFile = pathResolver.resolve(
                 row.rowNumber(),
                 "file",
                 row.file(),
@@ -100,7 +95,7 @@ public class ImportMediaFileValidator {
             return;
         }
 
-        Path resolvedThumbnail = validatePath(
+        Path resolvedThumbnail = pathResolver.resolve(
                 row.rowNumber(),
                 "thumbnail",
                 row.thumbnail(),
@@ -136,7 +131,9 @@ public class ImportMediaFileValidator {
         }
 
         Path filePath = Path.of(row.file().trim()).normalize();
-        Path thumbnailPath = Path.of(row.thumbnail().trim()).normalize();
+        Path thumbnailPath = Path.of(
+                row.thumbnail().trim()
+        ).normalize();
 
         if (filePath.equals(thumbnailPath)) {
             addIssue(
@@ -145,87 +142,6 @@ public class ImportMediaFileValidator {
                     "El video debe utilizar una miniatura separada.",
                     issues
             );
-        }
-    }
-
-    private Path validatePath(
-            int rowNumber,
-            String field,
-            String value,
-            List<ImportValidationIssue> issues
-    ) {
-        Path relativePath;
-
-        try {
-            relativePath = Path.of(value.trim());
-        } catch (RuntimeException exception) {
-            addIssue(
-                    rowNumber,
-                    field,
-                    "La ruta del archivo no es válida.",
-                    issues
-            );
-            return null;
-        }
-
-        if (relativePath.isAbsolute()) {
-            addIssue(
-                    rowNumber,
-                    field,
-                    "La ruta debe ser relativa a IMPORT_ROOT.",
-                    issues
-            );
-            return null;
-        }
-
-        Path resolvedPath = importRoot
-                .resolve(relativePath)
-                .normalize();
-
-        if (!resolvedPath.startsWith(importRoot)) {
-            addIssue(
-                    rowNumber,
-                    field,
-                    "La ruta no puede salir de IMPORT_ROOT.",
-                    issues
-            );
-            return null;
-        }
-
-        if (!Files.exists(resolvedPath)
-                || !Files.isRegularFile(resolvedPath)) {
-            addIssue(
-                    rowNumber,
-                    field,
-                    "El archivo no existe o no es un archivo regular.",
-                    issues
-            );
-            return null;
-        }
-
-        try {
-            Path realImportRoot = importRoot.toRealPath();
-            Path realFilePath = resolvedPath.toRealPath();
-
-            if (!realFilePath.startsWith(realImportRoot)) {
-                addIssue(
-                        rowNumber,
-                        field,
-                        "La ruta resuelta no puede salir de IMPORT_ROOT.",
-                        issues
-                );
-                return null;
-            }
-
-            return realFilePath;
-        } catch (IOException exception) {
-            addIssue(
-                    rowNumber,
-                    field,
-                    "No fue posible resolver la ruta real del archivo.",
-                    issues
-            );
-            return null;
         }
     }
 

@@ -22,9 +22,18 @@ class ImportDryRunServiceTests {
     @Test
     void shouldReturnValidReportForValidManifest()
             throws IOException {
-        createFile("photos/viaje.jpg");
-        createFile("videos/cumpleanos.mp4");
-        createFile("thumbnails/cumpleanos.jpg");
+        createFile(
+                "photos/viaje.jpg",
+                "contenido de la fotografía"
+        );
+        createFile(
+                "videos/cumpleanos.mp4",
+                "contenido del video"
+        );
+        createFile(
+                "thumbnails/cumpleanos.jpg",
+                "contenido de la miniatura"
+        );
 
         writeManifest(
                 """
@@ -104,15 +113,89 @@ class ImportDryRunServiceTests {
         );
     }
 
+
+    @Test
+    void shouldReportFilesWithDuplicateContent()
+            throws IOException {
+        createFile(
+                "photos/original.jpg",
+                "contenido compartido"
+        );
+        createFile(
+                "photos/copia.jpg",
+                "contenido compartido"
+        );
+
+        writeManifest(
+                """
+                id,title,type,category,date,place,file,thumbnail,description
+                10,Primer recuerdo,photo,familia,2024-03-15,San José,photos/original.jpg,photos/original.jpg,Primer recuerdo
+                11,Segundo recuerdo,photo,familia,2024-03-16,Cartago,photos/copia.jpg,photos/copia.jpg,Segundo recuerdo
+                """
+        );
+
+        ImportDryRunReport report =
+                createService().validate("manifest.csv");
+
+        assertFalse(report.valid());
+        assertEquals(2, report.totalRows());
+        assertEquals(1, report.validRows());
+        assertEquals(1, report.invalidRows());
+
+        assertIssue(
+                report,
+                3,
+                "file",
+                "El archivo tiene contenido duplicado; apareció primero en el campo file de la fila 2."
+        );
+    }
+
+    @Test
+    void shouldAcceptFilesWithDifferentContent()
+            throws IOException {
+        createFile(
+                "photos/primera.jpg",
+                "contenido primero"
+        );
+        createFile(
+                "photos/segunda.jpg",
+                "contenido segundo"
+        );
+
+        writeManifest(
+                """
+                id,title,type,category,date,place,file,thumbnail,description
+                10,Primer recuerdo,photo,familia,2024-03-15,San José,photos/primera.jpg,photos/primera.jpg,Primer recuerdo
+                11,Segundo recuerdo,photo,familia,2024-03-16,Cartago,photos/segunda.jpg,photos/segunda.jpg,Segundo recuerdo
+                """
+        );
+
+        ImportDryRunReport report =
+                createService().validate("manifest.csv");
+
+        assertTrue(report.valid());
+        assertEquals(2, report.totalRows());
+        assertEquals(2, report.validRows());
+        assertEquals(0, report.invalidRows());
+        assertTrue(report.issues().isEmpty());
+    }
+
     private ImportDryRunService createService() {
         ImportProperties properties = new ImportProperties();
         properties.setRoot(importRoot);
 
+        ImportMediaPathResolver pathResolver =
+                new ImportMediaPathResolver(properties);
+
         return new ImportDryRunService(
                 new ImportManifestReader(properties),
                 new ImportManifestRowValidator(),
-                new ImportMediaFileValidator(properties),
-                new ImportManifestDuplicateValidator()
+                new ImportMediaFileValidator(pathResolver),
+                new ImportManifestDuplicateValidator(),
+                new ImportContentDuplicateValidator(
+                        pathResolver,
+                        new ImportFileHashCalculator()
+                )
         );
     }
 
@@ -126,9 +209,16 @@ class ImportDryRunServiceTests {
 
     private void createFile(String relativePath)
             throws IOException {
+        createFile(relativePath, "test content");
+    }
+
+    private void createFile(
+            String relativePath,
+            String content
+    ) throws IOException {
         Path file = importRoot.resolve(relativePath);
         Files.createDirectories(file.getParent());
-        Files.writeString(file, "test content");
+        Files.writeString(file, content);
     }
 
     private void assertIssue(

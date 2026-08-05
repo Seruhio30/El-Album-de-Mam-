@@ -264,7 +264,9 @@ class ImportMediaFileValidatorTests {
         ImportProperties properties = new ImportProperties();
         properties.setRoot(importRoot);
 
-        return new ImportMediaFileValidator(properties);
+        return new ImportMediaFileValidator(
+                new ImportMediaPathResolver(properties)
+        );
     }
 
     private void assertIssue(
