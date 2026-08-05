@@ -45,6 +45,10 @@
 * Rechazar rutas absolutas, path traversal y archivos inexistentes.
 * Validar extensiones de fotografías, videos y miniaturas.
 * Detectar identificadores, filas y rutas repetidas dentro del manifiesto.
+* Calcular hashes SHA-256 de los archivos candidatos durante el `dry-run`.
+* Detectar archivos con rutas distintas y contenido idéntico.
+* Reutilizar hashes por ruta física dentro de una misma ejecución.
+* Reportar fallos de lectura del hash sin abortar todo el reporte.
 * Generar un reporte consolidado de validación `dry-run`.
 * Ejecutar el `dry-run` sin copiar archivos ni modificar PostgreSQL o `private-storage`.
 

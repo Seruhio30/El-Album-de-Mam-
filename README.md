@@ -383,13 +383,15 @@ La suite actual ejecuta 65 pruebas y valida:
 * Rechazo de rutas absolutas, path traversal y archivos inexistentes.
 * Validación de extensiones para fotografías, videos y miniaturas.
 * Detección de identificadores, filas y rutas repetidas dentro del manifiesto.
+* Detección mediante SHA-256 de archivos con rutas distintas y contenido idéntico.
+* Reutilización de hashes por ruta física durante cada ejecución del `dry-run`.
 * Generación de un reporte consolidado de validación `dry-run`.
 * Ejecución del flujo sin copiar archivos ni modificar PostgreSQL o `private-storage`.
 
 La suite completa termina con:
 
 ```text
-Tests run: 65, Failures: 0, Errors: 0
+Tests run: 85, Failures: 0, Errors: 0
 BUILD SUCCESS
 ```
 
@@ -421,7 +423,7 @@ Todavía no se han incorporado:
 
 La implementación actual utiliza almacenamiento privado local para validar la arquitectura con tres recuerdos.
 
-Existe una validación previa `dry-run` para manifiestos CSV y archivos candidatos, pero todavía no copia archivos, genera storage keys ni inserta recuerdos en PostgreSQL.
+Existe una validación previa `dry-run` para manifiestos CSV y archivos candidatos. La validación detecta también archivos con rutas distintas y contenido idéntico mediante SHA-256, pero todavía no copia archivos, genera storage keys ni inserta recuerdos en PostgreSQL.
 
 No se han importado las más de 2.000 fotografías familiares.
 

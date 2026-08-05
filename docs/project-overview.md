@@ -339,7 +339,7 @@ PostgreSQL
 
 ### Pruebas
 
-La suite actual ejecuta 65 pruebas automatizadas.
+La suite actual ejecuta 85 pruebas automatizadas.
 
 Las pruebas validan:
 
@@ -372,13 +372,17 @@ Las pruebas validan:
 * Rechazo de rutas absolutas, path traversal y archivos inexistentes.
 * Validación de extensiones de fotografías, videos y miniaturas.
 * Detección de identificadores, filas y rutas repetidas dentro del manifiesto.
+* Detección mediante SHA-256 de archivos con rutas distintas y contenido idéntico.
+* Reutilización de hashes para evitar leer repetidamente una misma ruta física durante un `dry-run`.
+* Ausencia de falsos duplicados por contenido cuando se reutiliza exactamente la misma ruta física.
+* Conversión de fallos de lectura durante el cálculo del hash en problemas del reporte.
 * Generación de un reporte consolidado de validación `dry-run`.
 * Ejecución sin copiar archivos ni modificar PostgreSQL o `private-storage`.
 
 La suite completa termina con:
 
 ```text
-Tests run: 65, Failures: 0, Errors: 0
+Tests run: 85, Failures: 0, Errors: 0
 BUILD SUCCESS
 ```
 
@@ -399,6 +403,9 @@ La integración también fue validada manualmente comprobando:
 * Validación manual de un manifiesto externo con 4 recuerdos.
 * Uso de 6 archivos copiados fuera del repositorio.
 * Reporte `dry-run` válido con 4 filas válidas y 0 inválidas.
+* Validación automatizada de dos archivos con nombres distintos y contenido idéntico.
+* Reporte del segundo archivo como duplicado mediante su hash SHA-256.
+* Confirmación de que el cálculo no copia archivos ni modifica PostgreSQL o `private-storage`.
 * Eliminación de la prueba temporal después de la validación.
 * Repositorio limpio al finalizar la comprobación.
 
@@ -420,4 +427,6 @@ Todavía no se han incorporado:
 
 Existe una validación previa `dry-run` para manifiestos CSV y archivos candidatos.
 
-Esta validación no copia archivos, no genera storage keys definitivas y no inserta ni actualiza registros en PostgreSQL.
+Esta validación compara también el contenido de los archivos mediante SHA-256, reutiliza los hashes calculados dentro de cada ejecución y reporta rutas distintas que representan contenido idéntico.
+
+La validación no copia archivos, no genera storage keys definitivas y no inserta ni actualiza registros en PostgreSQL.

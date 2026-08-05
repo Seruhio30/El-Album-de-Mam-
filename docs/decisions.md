@@ -809,3 +809,139 @@ La implementación fue validada mediante:
 * Repositorio limpio al finalizar.
 
 La validación manual confirmó que el proceso no modificó PostgreSQL, `private-storage`, la API ni el frontend.
+
+## 33. Detección de archivos duplicados por contenido mediante SHA-256
+
+El `dry-run` calculará un hash SHA-256 para cada archivo principal y miniatura válidos encontrados dentro de `IMPORT_ROOT`.
+
+El objetivo será detectar archivos que tengan contenido binario idéntico aunque utilicen nombres o rutas relativas diferentes.
+
+La detección se aplicará entre:
+
+* Dos archivos principales.
+* Dos miniaturas.
+* Un archivo principal y una miniatura.
+* Archivos pertenecientes a filas diferentes del manifiesto.
+
+Cuando un hash ya haya aparecido anteriormente, el reporte asociará el problema con la aparición posterior e indicará:
+
+* Número de fila.
+* Campo afectado.
+* Campo donde apareció primero.
+* Fila de la primera aparición.
+
+El mensaje utilizado será:
+
+`El archivo tiene contenido duplicado; apareció primero en el campo <campo> de la fila <fila>.`
+
+### Separación de responsabilidades
+
+La reutilización exacta de una misma ruta física continuará siendo responsabilidad de `ImportManifestDuplicateValidator`.
+
+`ImportContentDuplicateValidator` se concentrará en rutas físicas diferentes cuyo contenido produzca el mismo hash SHA-256.
+
+Esto evita generar dos problemas diferentes para una única reutilización de ruta.
+
+Una fotografía podrá continuar usando exactamente su propio archivo principal como miniatura.
+
+### Resolución segura de rutas
+
+La resolución de rutas se centraliza en `ImportMediaPathResolver`.
+
+Este servicio valida que cada archivo:
+
+* Utilice una ruta relativa.
+* Permanezca dentro de `IMPORT_ROOT`.
+* Exista.
+* Sea un archivo regular.
+* No termine fuera de la raíz mediante path traversal o enlaces simbólicos.
+
+`ImportMediaFileValidator` y `ImportContentDuplicateValidator` reutilizan esta resolución común para mantener las mismas reglas de seguridad.
+
+### Cálculo y reutilización de hashes
+
+`ImportFileHashCalculator` calcula SHA-256 mediante lectura secuencial del archivo.
+
+Los archivos se procesan con un buffer y no se cargan completamente en memoria.
+
+Cada ejecución del `dry-run` mantiene una caché local con la relación:
+
+`ruta física real → hash SHA-256`
+
+La caché pertenece únicamente a esa ejecución.
+
+No se almacena como estado permanente de un servicio singleton y no se reutiliza entre ejecuciones diferentes.
+
+Esto evita:
+
+* Leer varias veces el mismo archivo físico dentro de un reporte.
+* Conservar hashes obsoletos después de que cambie un archivo.
+* Introducir estado compartido entre ejecuciones.
+
+### Fallos durante el cálculo
+
+Si un archivo válido deja de poder leerse durante el cálculo del hash, el `dry-run` no abortará todo el proceso.
+
+El campo correspondiente recibirá el problema:
+
+`No fue posible calcular el hash SHA-256 del archivo.`
+
+Un fallo interno de la JVM que impida disponer del algoritmo SHA-256 continuará propagándose como error de aplicación.
+
+### Límites
+
+La detección por contenido permanece dentro del modo de solo lectura.
+
+No realizará ninguna de las siguientes operaciones:
+
+* Copiar archivos.
+* Mover archivos.
+* Renombrar archivos.
+* Eliminar archivos.
+* Modificar `private-storage`.
+* Insertar o actualizar registros en PostgreSQL.
+* Generar storage keys definitivas.
+* Generar miniaturas.
+* Leer o limpiar metadatos EXIF.
+* Modificar la API.
+* Modificar el frontend.
+
+El hash se utiliza exclusivamente para producir el reporte del `dry-run`.
+
+No se persiste en PostgreSQL ni se incorpora todavía al modelo definitivo de recuerdos.
+
+### Motivo
+
+Comparar únicamente nombres y rutas no permite detectar copias del mismo archivo guardadas con nombres diferentes.
+
+SHA-256 proporciona una identificación determinista del contenido y permite detectar esas copias antes de una futura importación masiva.
+
+La caché local reduce lecturas innecesarias sin introducir estado persistente o compartido.
+
+Mantener separadas la validación estructural de rutas y la validación por contenido produce mensajes más claros y evita responsabilidades duplicadas.
+
+### Validación
+
+La implementación fue validada mediante:
+
+* Suite completa de 85 pruebas automatizadas.
+* 0 fallos.
+* 0 errores.
+* `BUILD SUCCESS`.
+* 61 pruebas dentro del módulo `importvalidation`.
+* Pruebas del cálculo exacto de SHA-256.
+* Pruebas de reutilización del hash para una misma ruta física.
+* Pruebas que confirman el recálculo al utilizar una caché nueva.
+* Pruebas con archivos de contenido diferente.
+* Pruebas con archivos principales de contenido idéntico.
+* Pruebas con miniaturas de contenido idéntico.
+* Pruebas de contenido reutilizado entre archivo principal y miniatura.
+* Prueba de fotografía usando su propio archivo como miniatura.
+* Prueba de una misma ruta física reutilizada sin generar un segundo problema por contenido.
+* Pruebas de rutas inválidas o inexistentes.
+* Prueba de fallo de lectura convertido en `ImportValidationIssue`.
+* Prueba integrada del reporte con dos rutas diferentes y contenido idéntico.
+* Prueba integrada que acepta archivos con contenido diferente.
+* Ejecución de `./mvnw clean test`.
+
+La validación confirmó que la funcionalidad no modifica PostgreSQL, `private-storage`, la API ni el frontend.
