@@ -17,17 +17,20 @@ public class ImportDryRunService {
     private final ImportManifestRowValidator rowValidator;
     private final ImportMediaFileValidator mediaFileValidator;
     private final ImportManifestDuplicateValidator duplicateValidator;
+    private final ImportContentDuplicateValidator contentDuplicateValidator;
 
     public ImportDryRunService(
             ImportManifestReader manifestReader,
             ImportManifestRowValidator rowValidator,
             ImportMediaFileValidator mediaFileValidator,
-            ImportManifestDuplicateValidator duplicateValidator
+            ImportManifestDuplicateValidator duplicateValidator,
+            ImportContentDuplicateValidator contentDuplicateValidator
     ) {
         this.manifestReader = manifestReader;
         this.rowValidator = rowValidator;
         this.mediaFileValidator = mediaFileValidator;
         this.duplicateValidator = duplicateValidator;
+        this.contentDuplicateValidator = contentDuplicateValidator;
     }
 
     public ImportDryRunReport validate(String manifestPath) {
@@ -43,6 +46,7 @@ public class ImportDryRunService {
         }
 
         issues.addAll(duplicateValidator.validate(rows));
+        issues.addAll(contentDuplicateValidator.validate(rows));
 
         Set<Integer> invalidRowNumbers = new HashSet<>();
 
